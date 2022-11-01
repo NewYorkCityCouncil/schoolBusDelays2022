@@ -1,0 +1,44 @@
+---
+title: "python_to_r"
+author: "Data Team"
+date: "11/1/2022"
+output: html_document
+---
+
+```{r reticulate setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+use_condaenv("r-reticulate")
+scipy <- import("scipy")
+dt <- import("datetime")
+pd <- import("pandas")
+np <- import("numpy")
+
+```
+
+```{python import python pkgs, echo=FALSE}
+from __future__ import division 
+import numpy
+import pandas
+import scipy
+import scipy.stats
+from matplotlib import pyplot
+import matplotlib.pyplot as plt
+import seaborn as sns
+import seaborn
+# Configure default plot style.
+# seaborn.set_palette('muted')
+# seaborn.set_style('ticks')
+```
+
+```{python more python pkgs, echo=FALSE}
+import copy
+from scipy.stats import pearsonr
+from scipy.stats import norm
+import statsmodels.api as sm
+import re
+import calendar
+```
+
+
+
