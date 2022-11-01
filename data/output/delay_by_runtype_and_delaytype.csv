@@ -1,0 +1,88 @@
+,Percent_delay,Run_Type,Number_delays
+Heavy Traffic,65.70107239262602,Special Ed AM Run,134111
+Other,14.184584784664148,Special Ed AM Run,28954
+Mechanical Problem,7.979012654135007,Special Ed AM Run,16287
+Problem Run,3.7668464602225127,Special Ed AM Run,7689
+Won`t Start,2.8703281844770063,Special Ed AM Run,5859
+Flat Tire,2.508781469996032,Special Ed AM Run,5121
+Weather Conditions,1.8782792727914053,Special Ed AM Run,3834
+Accident,0.6716538557634367,Special Ed AM Run,1371
+Delayed by School,0.25719786599256333,Special Ed AM Run,525
+Late return from Field Trip,0.18224305933187343,Special Ed AM Run,372
+Heavy Traffic,70.86593703694075,Pre-K/EI,27260
+Other,20.882834637481476,Pre-K/EI,8033
+Mechanical Problem,3.990433358463098,Pre-K/EI,1535
+Weather Conditions,1.5805755582707255,Pre-K/EI,608
+Flat Tire,1.1152416356877324,Pre-K/EI,429
+Delayed by School,0.5589206332700757,Pre-K/EI,215
+Accident,0.43153872150154676,Pre-K/EI,166
+Won`t Start,0.29635791717576104,Pre-K/EI,114
+Problem Run,0.23136714586528712,Pre-K/EI,89
+Late return from Field Trip,0.04679335534354122,Pre-K/EI,18
+Heavy Traffic,52.631323547252215,General Ed AM Run,21692
+Mechanical Problem,23.48174208419265,General Ed AM Run,9678
+Other,12.658012859395852,General Ed AM Run,5217
+Won`t Start,3.8893606696591045,General Ed AM Run,1603
+Flat Tire,1.9240567754458329,General Ed AM Run,793
+Weather Conditions,1.4242387480286303,General Ed AM Run,587
+Accident,1.2204294552954023,General Ed AM Run,503
+Late return from Field Trip,1.077277690161349,General Ed AM Run,444
+Problem Run,1.053014679121679,General Ed AM Run,434
+Delayed by School,0.6356908892393546,General Ed AM Run,262
+Heavy Traffic,62.56431435307074,Special Ed PM Run,36358
+Other,13.329203448453875,Special Ed PM Run,7746
+Mechanical Problem,8.533374632182127,Special Ed PM Run,4959
+Won`t Start,3.7719615232392063,Special Ed PM Run,2192
+Flat Tire,3.169686644984771,Special Ed PM Run,1842
+Problem Run,2.682704386281899,Special Ed PM Run,1559
+Late return from Field Trip,2.6362431813879854,Special Ed PM Run,1532
+Accident,1.5091287663689708,Special Ed PM Run,877
+Delayed by School,1.412764785848261,Special Ed PM Run,821
+Weather Conditions,0.3906182781821623,Special Ed PM Run,227
+Heavy Traffic,32.91139240506329,Special Ed Field Trip,260
+Late return from Field Trip,21.645569620253166,Special Ed Field Trip,171
+Mechanical Problem,15.316455696202532,Special Ed Field Trip,121
+Other,13.291139240506329,Special Ed Field Trip,105
+Won`t Start,6.708860759493671,Special Ed Field Trip,53
+Delayed by School,4.050632911392405,Special Ed Field Trip,32
+Accident,3.2911392405063293,Special Ed Field Trip,26
+Flat Tire,2.4050632911392404,Special Ed Field Trip,19
+Weather Conditions,0.25316455696202533,Special Ed Field Trip,2
+Problem Run,0.12658227848101267,Special Ed Field Trip,1
+Heavy Traffic,33.67571533382245,General Ed PM Run,3213
+Mechanical Problem,22.45047688921497,General Ed PM Run,2142
+Late return from Field Trip,18.84498480243161,General Ed PM Run,1798
+Other,11.183314118016979,General Ed PM Run,1067
+Won`t Start,4.360129965412431,General Ed PM Run,416
+Delayed by School,3.521643433602348,General Ed PM Run,336
+Accident,3.1652866575830627,General Ed PM Run,302
+Flat Tire,1.477832512315271,General Ed PM Run,141
+Problem Run,0.7860811235719526,General Ed PM Run,75
+Weather Conditions,0.5345351640289278,General Ed PM Run,51
+Heavy Traffic,32.90993071593533,General Ed Field Trip,285
+Mechanical Problem,25.288683602771364,General Ed Field Trip,219
+Late return from Field Trip,20.554272517321017,General Ed Field Trip,178
+Other,9.815242494226329,General Ed Field Trip,85
+Won`t Start,4.618937644341801,General Ed Field Trip,40
+Accident,2.886836027713626,General Ed Field Trip,25
+Flat Tire,2.0785219399538106,General Ed Field Trip,18
+Delayed by School,1.6166281755196306,General Ed Field Trip,14
+Problem Run,0.11547344110854503,General Ed Field Trip,1
+Weather Conditions,0.11547344110854503,General Ed Field Trip,1
+Heavy Traffic,43.47826086956522,Project Read AM Run,40
+Other,26.08695652173913,Project Read AM Run,24
+Mechanical Problem,11.956521739130435,Project Read AM Run,11
+Delayed by School,10.869565217391305,Project Read AM Run,10
+Weather Conditions,4.3478260869565215,Project Read AM Run,4
+Won`t Start,2.1739130434782608,Project Read AM Run,2
+Problem Run,1.0869565217391304,Project Read AM Run,1
+Heavy Traffic,63.90243902439025,Project Read PM Run,262
+Other,9.268292682926829,Project Read PM Run,38
+Weather Conditions,8.536585365853659,Project Read PM Run,35
+Mechanical Problem,6.341463414634147,Project Read PM Run,26
+Delayed by School,4.878048780487805,Project Read PM Run,20
+Won`t Start,3.902439024390244,Project Read PM Run,16
+Flat Tire,1.7073170731707317,Project Read PM Run,7
+Accident,1.4634146341463414,Project Read PM Run,6
+Heavy Traffic,66.66666666666667,Project Read Field Trip,2
+Other,33.333333333333336,Project Read Field Trip,1
