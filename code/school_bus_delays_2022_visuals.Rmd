@@ -1,0 +1,67 @@
+---
+title: "School Bus Delay Visuals"
+author: "Melissa Nunez"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:
+    theme: cosmo
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = FALSE, fig.align="left")
+```
+
+
+
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(tibble)
+library(htmltools)
+library(lubridate)
+#remotes::install_github("newyorkcitycouncil/councildown")
+#library(councildown)
+library(ggalt)
+library(plotly)
+
+
+# Average Daily Delays Per Month
+
+school_bus_delays_month_year <- school_bus_delays %>% mutate(day=day(Occurred_On), month=month(Occurred_On), year=year(Occurred_On)) %>% group_by(year, month) %>% summarize(count=n(), average_month=mean(delay_time)) %>% mutate(month_char=month.abb[month], my=factor(paste(month_char,year, sep=" "), levels=paste(month.abb, rep(2017:2022, each=12))))
+
+school_bus_delays %>% mutate(day=day(Occurred_On), month=month(Occurred_On), year=year(Occurred_On)) %>% group_by(day, year, month) %>% summarize(count=n()) %>% ungroup() %>% group_by(year, month) %>% summarize(average_daily_delays=mean(count))
+                                                                                                       ggplotly(school_bus_delays_month_year %>% ggplot(aes(x=my, y=count, text = paste("Month-Year:", my, "<br>Count:", count))) + geom_point() + geom_smooth(span=0.1, aes(group=1)) + theme_bw() + xlab("") + ylab("Number of Delays"), tooltip="text")
+
+# Delay Times  
+                                                                                                       
+ggplotly(school_bus_delays_month_year %>% ggplot(aes(x=my, y=average_month, text = paste("Month-Year:", my, "<br>Average:", round(average_month,2))))  +
+  geom_col() +
+  coord_flip() + theme_bw() + ylab("Average Minutes Delayed") + xlab(""), tooltip="text")
+
+# School Bus Delay Reasons
+
+ggplotly(school_bus_delays %>% filter(Reason!="")  %>% mutate(day=day(Occurred_On), month=month(Occurred_On), year=year(Occurred_On)) %>% filter(year>=2021) %>% group_by(Reason) %>% summarize(count=n()) %>% mutate(percent=round(count/sum(count)*100,2)) %>% ggplot(aes(x=reorder(Reason, -count), y=count, text=paste("Reason:", Reason, "<br>Count:", count, "<br>Percent:", paste(percent,"%", sep="")))) + geom_col() + theme_bw() + xlab("") + ylab("Number of Delays"), tooltip="text")
+
+# How Long Certain Delays Take
+
+ggplotly(school_bus_delays %>% filter(Reason!="")  %>% mutate(day=day(Occurred_On), month=month(Occurred_On), year=year(Occurred_On)) %>% filter(year>=2021) %>% group_by(Reason) %>% summarize(count=n(), average_time=mean(delay_time)) %>% ggplot(aes(x=reorder(Reason,average_time), y=average_time, text = paste("Reason:", Reason, "<br>Average:", round(average_time,2))))  +
+  geom_col() +
+  coord_flip() + theme_bw() + ylab("Average Minutes Delayed") + xlab(""), tooltip="text")
+
+#Reasons for Delays Over Time
+
+top_reasons <- school_bus_delays %>% filter(Reason!="") %>% group_by(Reason) %>% summarize(count=n()) %>% mutate(percent=round(count/sum(count)*100,3)) %>% arrange(desc(count)) %>% top_n(5) %>% select(Reason) %>% unlist()
+
+school_bus_delays_reasons <- school_bus_delays %>% mutate(day=day(Occurred_On), month=month(Occurred_On), year=year(Occurred_On)) %>% filter(Reason %in% top_reasons) %>% group_by(year, month, Reason) %>% summarize(count=n(), average_month=mean(delay_time)) %>% mutate(month_char=month.abb[month], my=factor(paste(month_char,year, sep=" "), levels=paste(month.abb, rep(2017:2022, each=12))))
+
+ ggplotly(school_bus_delays_reasons %>% ggplot(aes(x=my, y=count, color=Reason, text = paste("Month-Year:", my, "<br>Count:", count, "<br>Reason:", Reason))) + geom_point() + geom_smooth(span=0.1, aes(group=Reason)) + theme_bw() + xlab("") + ylab("Number of Delays"), tooltip="text")
+```
+
+
+
+
+
+
