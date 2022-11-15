@@ -1,7 +1,7 @@
 # read in filtered, cleaned school bus delay data -----
 x <-  read_csv("data/output/filtered_weekends_vacation_covid_delays.csv")
 
-# Total Delays per Month ----
+# 01 Total Delays per Month ----
 
 delays_monyr <- x %>% 
   mutate(day=day(Occurred_On), 
@@ -69,7 +69,7 @@ plot_interactive <- girafe(ggobj = plot,
 htmltools::save_html(plot_interactive, "visuals/num_monthly_delays.html")
 
 
-# Avg DelayTimes per Month ----
+# 02 Avg DelayTimes per Month ----
 
 # plot
 
@@ -112,7 +112,113 @@ plot_interactive <- girafe(ggobj = plot,
 htmltools::save_html(plot_interactive, "visuals/avg_monthly_delay_times.html")
 
 
-## delays by delay type overall ----
+# 03 Longest delays by reason -----
+
+# data prep
+reasons <- x %>% 
+  filter(Reason!="")  %>% 
+  mutate(day=day(Occurred_On), 
+         month=month(Occurred_On), 
+         year=year(Occurred_On)) %>% 
+  filter(year>=2021) %>% 
+  group_by(Reason) %>% 
+  summarize(count=n(), 
+            average_time=mean(delay_time)) %>% 
+  top_n(5, wt = average_time)
+
+# plot
+plot <- 
+  reasons %>% 
+  ggplot(aes(x = reorder(Reason,average_time), 
+             y=average_time, fill = Reason)) +
+  geom_col_interactive(width = 0.6,
+                      tooltip = 
+                         paste("Reason:", reasons$Reason, 
+                               "<br>Average:", 
+                               round(reasons$average_time,2))) +
+  scale_fill_nycc(palette = "main") +
+  coord_flip() +
+  geom_text(show.legend = F, size = 3,
+            label= paste0(round(reasons$average_time, 0), " min."), 
+            nudge_x = 0, nudge_y = 4) +
+  ylab("Average Minutes Delayed") + xlab("") +
+  labs(title="Reasons with Longest Delay Times",
+       subtitle = "(2021-2022 to Present)", 
+       x="",  y="Average Minutes Delayed") +
+  theme(axis.text.x = element_text(angle = 0, hjust = 1),
+        legend.position = "none")
+
+tooltip_css <- "background-color:#CACACA;"
+
+plot_interactive <- girafe(ggobj = plot,   
+                           width_svg = 11,
+                           height_svg = 8, 
+                           options = list(
+                             opts_tooltip(css = tooltip_css)
+                           )
+)
+
+
+htmltools::save_html(plot_interactive, "visuals/longest_delays.html")
+  
+
+
+
+# 04 Most delays by reason -----
+
+# data prep
+reasons <- x %>% 
+  filter(Reason!="")  %>% 
+  mutate(day=day(Occurred_On), 
+         month=month(Occurred_On), 
+         year=year(Occurred_On)) %>% 
+  filter(year>=2021) %>% 
+  group_by(Reason) %>% 
+  summarize(count=n()) %>% 
+  mutate(percent=round(count/sum(count)*100,2)) %>% 
+  top_n(5, wt = percent)
+
+
+# plot
+plot <- 
+  reasons %>% 
+  ggplot(aes(x = reorder(Reason, percent), 
+             y=count, fill = Reason)) +
+  geom_col_interactive(width = 0.6,
+                       tooltip = 
+                         paste("Reason:", reasons$Reason, 
+                               "<br>Count:", 
+                               reasons$count, "<br>Percent:", 
+                               paste(reasons$percent,"%", sep="")) ) +
+  scale_fill_nycc(palette = "main") +
+  scale_y_continuous(breaks = seq(0,max(reasons$count), 10000),
+                     labels = scales::comma(seq(0,max(reasons$count), 10000))) +
+  geom_text(show.legend = F, size = 3,
+            label= scales::comma(reasons$count), 
+            nudge_x = 0, nudge_y = 6) +
+  coord_flip() +
+  labs(title="Reasons with Longest Delay Times",
+       subtitle = "(2021-2022 to Present)", 
+       x="",  y="Number of Delays") +
+  theme(axis.text.x = element_text(angle = 0, hjust = 1),
+        legend.position = "none")
+
+tooltip_css <- "background-color:#CACACA;"
+
+plot_interactive <- girafe(ggobj = plot,   
+                           width_svg = 11,
+                           height_svg = 8, 
+                           options = list(
+                             opts_tooltip(css = tooltip_css)
+                           )
+)
+
+
+htmltools::save_html(plot_interactive, "visuals/most_delays.html")
+
+
+
+
 ## SWD delays by delay type ----
 
 
