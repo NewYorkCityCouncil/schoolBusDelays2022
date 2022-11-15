@@ -5,40 +5,251 @@ date: "11/1/2022"
 output: html_document
 ---
 
+# Set up python enviroment in R & import pkgs
 ```{r reticulate setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+require("knitr")
+opts_knit$set(root.dir = "~/Desktop/Data_Projects/schoolBusDelays2022")
 library(reticulate)
 use_condaenv("r-reticulate")
 scipy <- import("scipy")
 dt <- import("datetime")
 pd <- import("pandas")
 np <- import("numpy")
-
+#repl_python() #test
 ```
 
-```{python import python pkgs, echo=FALSE}
-from __future__ import division 
-import numpy
-import pandas
-import scipy
-import scipy.stats
-from matplotlib import pyplot
-import matplotlib.pyplot as plt
-import seaborn as sns
-import seaborn
-# Configure default plot style.
-# seaborn.set_palette('muted')
-# seaborn.set_style('ticks')
-```
-
-```{python more python pkgs, echo=FALSE}
-import copy
+# load pkgs
+```{python import python pkgs}
+import pandas as pd
+import numpy as np
 from scipy.stats import pearsonr
 from scipy.stats import norm
+
 import statsmodels.api as sm
 import re
 import calendar
+
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+import copy
+
+# %matplotlib inline
+# %load_ext autotime
+# not working since its not a jupyter nb....
+```
+
+# school dates notebook
+ 
+## read in calendar dates files
+```{python read in data, echo=FALSE}
+data = pd.read_csv('../data/input/modified/DOE School Calendar Dates_edited.csv').drop(columns = ['Unnamed: 3'])
+data = data.replace('–', '-')
+```
+
+## check dates
+```{r}
+View(py$data)
+```
+
+## clean dates, function to get range dates sorted out
+```{python clean dates, echo=FALSE}
+# Data start date should be Sept. 7, 2017
+
+# Have to preprocess date ranges
+# Split into start and end dates. If there is a hyphen, 
+# take the two numbers on either side of it and use one as start date and one as an end date
+
+# 27-30 Dec 2022
+
+# For this to work, replace all '‚Äì' (big hyphen code) in csv with hyphens '-' 
+
+start_dates, end_dates = [], []
+for i in data['Dates']:
+    if ('-' not in i):
+        start_dates.append(pd.to_datetime(i))
+        end_dates.append(pd.to_datetime(i))
+    else:
+        x = i.split(' ')
+        start_dates.append(pd.to_datetime(' '.join([k.split('-')[0] if ('-' in k) else k for k in x])))
+        end_dates.append(pd.to_datetime(' '.join([k.split('-')[1] if ('-' in k) else k for k in x])))
+        
+data['Start Date'] = start_dates
+data['End Date'] = end_dates
+```
+
+## define and run school calendar yr function
+```{python school yr func}
+def get_year(school_year, month):
+    if int(month) < 9:
+        return int(school_year[:4]) + 1
+    else:
+        return int(school_year[:4])
+```
+
+```{python apply func}
+data['End Date'] = pd.to_datetime(data['End Date'].dt.month.astype(str) + "/" + data['End Date'].dt.day.astype(str) + "/" + data.apply( (lambda x: get_year(x['School Year'], x['End Date'].month)), axis = 1).astype(str))
+
+data['Start Date'] = pd.to_datetime(data['Start Date'].dt.month.astype(str) + "/" + data['Start Date'].dt.day.astype(str) + "/" + data.apply( (lambda x: get_year(x['School Year'], x['Start Date'].month)), axis = 1).astype(str))
+```
+
+## account for covid
+```{python covid func}
+# Adding covid shutdown 3/16/2020 - 9/13/2021
+
+covid = {'School Year': '2021-2022', 
+         'Dates': '3/16/2020 - 9/13/2021', 
+         'Reason': 'COVID', 
+         'Start Date': pd.to_datetime('3/16/2020'), 
+         'End Date': pd.to_datetime('9/13/2021')
+        }
+covid
+
+data = data.append(covid, ignore_index=True)
+```
+## reference safe keeps in R
+```{r}
+r <- py$data
+#r$Reason
+# there are 163 unique closed reasons, identified 14 non holiday related reasons, example, clerical & professional development day, afternoon Parent teacher conference, regents for HS students, etc.
+```
+
+### bring this code chunk above in Al's python nb
+```{python unique closures}
+data['Reason'].unique()
+```
+
+### Non-holiday closure dates, students not in attendance
+```{python non-holidays closed}
+# Sort reasons
+data['Closure'] = data['Reason'].apply( lambda x: 1 if  ( ("closed" in x) | 
+                                       ("no students" in x) | 
+                                       ("9-12 schools only" in x) | 
+                                       ("remote" in x) | 
+                                       ("hours early" in x) | 
+                                       ("do not attend" in x) | 
+                                       ("CLOSED" in x) | 
+                                       ("Clerical Day" in x) | 
+                                       ("staff development" in x) | 
+                                       ("Students not in attendance" in x) | 
+                                       ("Students will not" in x) | 
+                                       ("will not be in attendance" in x) | 
+                                       ("COVID" in x) | 
+                                       ("Summer Recess" in x) ) else 0 )
+```
+
+########
+
+
+# Analysis 
+
+## read in school enrollment data
+```{python enrollment nums}
+# Enrollment numbers
+# since enrollment #s go back to 2017, we can only use school bus delay #s from 2017 to normalize the data
+# https://infohub.nyced.org/reports/school-quality/information-and-data-overview
+enrollment_count = {
+    2017: 1135334,
+    2018: 1126501,
+    2019: 1131868,
+    2020: 1094138,
+    2021: 1058888,
+    2022: 1058888*.982 #This is an based on the 1.8% drop in school population from last year. Per info provided by DOE
+}
+```
+
+## read in school bus delay data
+```{python school bus delays data}
+data_orig = pd.read_json("https://data.cityofnewyork.us/resource/ez4e-fazm.json?$limit=99999999&$where=school_year%20not%20in(%272015-2016%27,%20%272016-2017%27)")
+
+data_orig['occurred_on'] = pd.to_datetime(data_orig['occurred_on'])
+
+```
+
+## reference safe keeps in R
+```{r}
+r1 <- py$data_orig
+```
+
+## Function that cleans how_long_delayed column
+```{python func for clean delay times}
+def clean_delay_times(x):
+    a = x
+    x = str(x).lower().rstrip().replace('1 1/2', '1 2').replace('11/2', '1 2').\
+    replace('1/2', '0 1').replace('half', '0 1').replace('to', '-')
+    units = re.findall(r'[a-z ]+', x)
+    time = re.split(r'[- /,]', ''.join(re.findall(r'[0-9 .,/-]+', x)) )
+    time = [i for i in time if not((re.search('[.]+',i) !=None)|(re.search('[ ]+',i) !=None)|(i==''))]
+    if time:
+        time = np.nanmean([float(i) for i in time])
+    else:
+        time = 0
+    
+    if any(i in ''.join(units) for i in ['h', 'r']) and ( time <= 5 ):
+#         print(a)
+#         print(time*60)
+        return time*60
+    elif any(i in ''.join(units) for i in ['m', 'n']) | (x == ''):
+        return time
+    else:
+#         print(a)
+#         print(time, units)
+        return 0
 ```
 
 
+```{python clean how long delay col}
+
+data_orig['delay_time'] = data_orig.how_long_delayed.astype(str).apply(clean_delay_times)
+```
+
+## no need to run this since I filtered it in the socrata api pull
+```{python subset data}
+# # Only can normalize from 2017 forth.
+# data_orig = data_orig[(data_orig['Occurred_On'] >= pd.to_datetime('09-7-2017')) & (data_orig['Occurred_On'] < pd.to_datetime('11-1-2022'))]
+```
+
+## remove 2 data entry error rows
+```{r}
+# noticed two entries with funny times
+c('15-320MINS'	'20-225 MIN')
+```
+
+## DOE gave dates - check with ours
+```{r}
+library(readxl)
+
+d1 <- read_xlsx("./data/input/raw/calendar_days_hs.xlsx")
+# d2 <- read_xlsx('~/data/input/raw/calendar.days.2015-2022.d110822.elementary.school.xlsx')
+```
+
+```{python}
+days_closed = data[data['Closure'] == 1]
+
+###########Faster Version####################
+data_orig['closed'] = 1
+
+for row, val in days_closed.iterrows():
+    a = val['Start Date']
+    b = val['End Date'] + pd.DateOffset(1)
+    data_orig.loc[:,('closed')] = data_orig.loc[:,('closed')]*(~data_orig.loc[:,('occurred_on')].apply(
+        lambda x: (x > a) & (x < b)))
+
+data_orig = data_orig[data_orig['closed'] == 1]
+#############################################
+# Eliminate weekends
+
+data_orig = data_orig[data_orig['occurred_on'].dt.dayofweek <= 4]
+
+```
+
+```{r}
+
+final <- r2 %>% 
+  select(1:22) %>% 
+  mutate(occurred_on = as.Date(occurred_on)) %>% 
+  filter(occurred_on %in% dates$hs)
+```
 
