@@ -1,8 +1,12 @@
 # read in filtered, cleaned school bus delay data -----
 x <-  read_csv("data/output/filtered_weekends_vacation_covid_delays.csv")
+# read in enrollment nums
+enroll <- read_csv("data/input/raw/enrollment_nums.csv") %>% 
+  mutate(year = as.numeric(year))
 
 # 01 Total Delays per Month ----
 
+# data prep 
 delays_monyr <- x %>% 
   mutate(day=day(Occurred_On), 
          month=month(Occurred_On), 
@@ -69,7 +73,9 @@ plot_interactive <- girafe(ggobj = plot,
 htmltools::save_html(plot_interactive, "visuals/num_monthly_delays.html")
 
 
-# 02 Avg DelayTimes per Month ----
+# 02 Avg Delay Times per Month ----
+
+# same dataset is used
 
 # plot
 
@@ -219,84 +225,160 @@ htmltools::save_html(plot_interactive, "visuals/most_delays.html")
 
 
 
-## SWD delays by delay type ----
+# 05 Reasons for delay over time ----
+
+# data prep
+top_reasons <- x %>% # getting the top 5 reasons since 2017 to present
+  filter(Reason!="") %>% 
+  group_by(Reason) %>% 
+  summarize(count=n()) %>% 
+  mutate(percent=round(count/sum(count)*100,3)) %>% 
+  arrange(desc(count)) %>% 
+  top_n(5, wt = percent) %>% 
+  select(Reason) %>% 
+  unlist()
+
+t <- x %>% 
+  mutate(day=day(Occurred_On), 
+         month=month(Occurred_On), 
+         year=year(Occurred_On)) %>% 
+  filter(Reason %in% top_reasons) %>% 
+  group_by(year, month, Reason) %>% 
+  summarize(count=n(), 
+            average_month=mean(delay_time)) %>% 
+  
+  mutate(Reason = factor(Reason, levels = top_reasons),
+    month_char=month.abb[month], 
+         my=factor(month_char, levels= unique(delays_monyr$month_char)),
+         monyr=ym(paste(year,month, sep=" ")),
+         School_Year = case_when(monyr >='2017-09-01' & 
+                                   monyr<='2018-06-01' ~ '2017-2018',
+                                 monyr >='2018-09-01' & 
+                                   monyr<='2019-06-01' ~ '2018-2019',
+                                 monyr >='2019-09-01' & 
+                                   monyr<='2020-06-01' ~ '2019-2020',
+                                 monyr >='2020-09-01' & 
+                                   monyr<='2021-06-01' ~ '2020-2021',
+                                 monyr >='2021-09-01' & 
+                                   monyr<='2022-06-01' ~ '2021-2022',
+                                 monyr >='2022-09-01' & 
+                                   monyr<='2023-06-01' ~ '2022-2023')) %>% 
+  
+  left_join(enroll, by="year") %>% #normalize to 2022 pop levels
+  mutate(norm_count=round(count*1039828/enrollment,2)) 
 
 
-plot <- 
-  ggplot(data = m, 
-         aes(x=rank(facre_pc), y=COVID_DEATH_RATE, color=MedInc)) +
-  geom_point_interactive(
-    tooltip = paste0(
-      "Neighborhood (modzcta): ", m$NEIGHBORHOOD_NAME, " (", m$MODZCTA, ")", 
-      "\n", 
-      "Borough: ", m$BOROUGH_GROUP, 
-      "\n", 
-      "Park Access (Functional Acres Per 100,000 Residents): ", round(m$facre_pc * 100000, 1), 
-      "\n", 
-      "COVID-19 Death Rate (Per 100,000): ", round(m$COVID_DEATH_RATE, 0), 
-      "\n", 
-      "Median Income ($): ", scales::comma(round(m$MedInc, 0))
-    )
-  ) + 
-  geom_vline(xintercept = median(rank(modzcta_facre$facre_pc), na.rm=TRUE),
-             color ="#666666",linetype = "dashed") +
-  geom_hline(yintercept = as.numeric(median(modzcta_facre$COVID_DEATH_RATE, na.rm=TRUE)),
-             color ="#666666",linetype = "dashed") +
-  geom_hline(aes(yintercept = as.numeric(median(modzcta_facre$COVID_DEATH_RATE, na.rm=TRUE)), linetype = "Median"), 
-             colour = "#666666") + 
-  scale_linetype_manual(name = NULL, values = 4) +
-  scale_y_continuous(label = scales::comma_format()) +
-  ggtitle("Park Equity in NYC", "Comparing Park Acreage, Covid Death Rates, and Median Income for Every Zipcode") +
-  labs(
-    x = "Park Acreage\n (Functional Acreage Per Capita) \n Ranked from Least to Greatest",
-    y = "Covid Death Rate (Per 100,000)",
-    color = "Median Income",
-    caption = expression(paste(italic("Source: Census ACS; NYC DOHMH; NYC Parks: Walk-to-a-Park Service Area")))
-  ) +
-  scale_color_gradientn(
-    labels = scales::dollar_format(),
-    colours = c('#800000','#DD6C54','#E6E6E6','#AFB3D1','#7683BC','#2F56A6'),
-    values = scales::rescale(c(50000,70000,100000, 150000, 200000, 250000) ) )+
-  
-  annotate("text", x = 25, y = 1350, label = "Low Park Access\nHigh Covid") +
-  annotate("text", x = 125, y = 1350, label = "High Park Access\nHigh Covid") +
-  annotate("text", x = 25, y = 50, label = "Low Park Access\nLow Covid") +
-  annotate("text", x = 125, y = 50, label = "High Park Access\nLow Covid") +
-  
-  theme(legend.position="right", legend.text = element_text(size=8),
-        legend.title = element_text(size=10, family = 'Georgia'),
-        
-        panel.grid.major = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"),
-        panel.grid.minor = element_blank(),
-        plot.title = element_text(family = "Georgia",size = 14),
-        axis.title.y = element_text(size = 11, 
-                                    margin = margin(t = 0, r = 10, b = 0, l = 0)),
-        axis.text.y = element_text(size = 11, 
-                                   margin = margin(t = 0, r = 10, b = 0, l = 0)),
-        axis.text.x = element_text(size = 11, 
-                                   margin = margin(t = 10, r = 0, b = 0, l = 0)),
-        axis.title.x = element_text(size = 11, 
-                                    margin = margin(t = 10, r = 0, b = 0, l = 0))) 
+plot <- t %>% 
+  ggplot(aes(x = my,  y = norm_count)) +
+  geom_line(aes(color=School_Year, group=School_Year), 
+            alpha=1) +
+  facet_wrap(~Reason, ncol=5) +
+  geom_point_interactive(size=1.5, alpha=0.85,
+                         aes(color=School_Year, 
+                             group=School_Year),
+                         tooltip = paste(t$month_char,
+                                         t$year, " :",
+                                         scales::comma(t$norm_count,
+                                                        accuracy = 1),
+                                         " delays") )+ 
+  scale_color_nycc(palette = "main", reverse = T) +
+  scale_y_continuous(breaks = seq(0, max(t$norm_count),
+                                  1000),
+                     labels = seq(0,max(t$norm_count),
+                                  1000)) +
+  labs(title="Monthly School Bus Delays by Reason", 
+       x="School Year Calendar Months",  
+       y="Number of Delays") +
+  theme(axis.text.x = element_text(angle = 0, hjust = 1),
+        legend.position = "top")
 
 tooltip_css <- "background-color:#CACACA;"
 
 plot_interactive <- girafe(ggobj = plot,   
-                           width_svg = 9,
-                           height_svg = 5, 
+                           width_svg = 11,
+                           height_svg = 8, 
                            options = list(
                              opts_tooltip(css = tooltip_css)
                            )
 )
 
-htmltools::save_html(plot_interactive, "figures/mainplot_interactive.html")
 
 
+htmltools::save_html(plot_interactive, "visuals/reasons_num_delays.html")
 
+# 06  SWD delays by delay type ----
 
-
-
+# data prep
+swd <- x %>% 
+  mutate(day=day(Occurred_On), 
+         month=month(Occurred_On), 
+         year=year(Occurred_On)) %>% 
+  mutate(type=ifelse(grepl("General", Run_Type)==TRUE, 
+                     "General Ed",
+                     ifelse(grepl("Special", Run_Type)==TRUE,
+                            "Special Ed","Other"))) %>% 
+  group_by(year, month, type) %>% 
+  summarize(count=n(), 
+            average_month=mean(delay_time)) %>% 
+  mutate(month_char=month.abb[month],
+         my=factor(month_char, 
+                   levels= unique(month_char))) %>%
+  filter(type=="General Ed"| type=="Special Ed") %>% 
+  mutate(type = factor(type, levels = c("Special Ed", "General Ed")),
+         monyr=ym(paste(year,month, sep=" ")),
+         School_Year = case_when(monyr >='2017-09-01' & 
+                          monyr<='2018-06-01' ~ '2017-2018',
+                        monyr >='2018-09-01' & 
+                          monyr<='2019-06-01' ~ '2018-2019',
+                        monyr >='2019-09-01' & 
+                          monyr<='2020-06-01' ~ '2019-2020',
+                        monyr >='2020-09-01' & 
+                          monyr<='2021-06-01' ~ '2020-2021',
+                        monyr >='2021-09-01' & 
+                          monyr<='2022-06-01' ~ '2021-2022',
+                        monyr >='2022-09-01' & 
+                          monyr<='2023-06-01' ~ '2022-2023'))
+# plot
+plot <- swd %>% 
+  ggplot(aes(x = my,  y = average_month)) +
+  geom_line(aes(color=School_Year, group=School_Year), 
+            alpha=1) +
+  facet_wrap(~type, ncol=2) +
+  geom_point_interactive(size=1.5, alpha=0.85,
+                         aes(color=School_Year, 
+                             group=School_Year),
+             tooltip = paste(swd$month_char,
+                             swd$year, " :",
+                scales::number(swd$average_month,
+                               accuracy = 1),
+                 " minutes") )+ 
+  scale_color_nycc(palette = "main", reverse = T) +
+  scale_y_continuous(breaks = seq(0, max(swd$average_month),
+                                  4),
+                     labels = seq(0,max(swd$average_month),
+                                  4)) +
+  labs(title="School Bus Average Delay Times per Month", 
+       x="School Year Calendar Months",  
+       y="Average Delay Times") +
+  theme(axis.text.x = element_text(angle = 0, hjust = 1),
+        legend.position = "top")
+  
+  tooltip_css <- "background-color:#CACACA;"
+  
+  plot_interactive <- girafe(ggobj = plot,   
+                             width_svg = 11,
+                             height_svg = 8, 
+                             options = list(
+                               opts_tooltip(css = tooltip_css)
+                             )
+  )
+  
+  
+  
+  htmltools::save_html(plot_interactive, "visuals/swd_delaytimes.html")
+  
+  
+ ########
 library(readxl)
 
 d1 <- read_xlsx("./data/input/raw/calendar_days_hs.xlsx") %>% 

@@ -46,7 +46,7 @@ import copy
 ## read in calendar dates files
 ```{python read in data, echo=FALSE}
 data = pd.read_csv('../data/input/modified/DOE School Calendar Dates_edited.csv').drop(columns = ['Unnamed: 3'])
-data = data.replace('–', '-')
+data = data.replace('–', '-') 
 ```
 
 ## check dates
@@ -77,7 +77,7 @@ for i in data['Dates']:
         end_dates.append(pd.to_datetime(' '.join([k.split('-')[1] if ('-' in k) else k for k in x])))
         
 data['Start Date'] = start_dates
-data['End Date'] = end_dates
+data['End Date'] = end_dates 
 ```
 
 ## define and run school calendar yr function
@@ -86,7 +86,7 @@ def get_year(school_year, month):
     if int(month) < 9:
         return int(school_year[:4]) + 1
     else:
-        return int(school_year[:4])
+        return int(school_year[:4]) 
 ```
 
 ```{python apply func}
@@ -107,7 +107,7 @@ covid = {'School Year': '2021-2022',
         }
 covid
 
-data = data.append(covid, ignore_index=True)
+data = data.append(covid, ignore_index=True) 
 ```
 ## reference safe keeps in R
 ```{r}
@@ -158,6 +158,14 @@ enrollment_count = {
     2021: 1058888,
     2022: 1058888*.982 #This is an based on the 1.8% drop in school population from last year. Per info provided by DOE
 }
+```
+
+# save to data folder
+```{r}
+enroll<- plyr::ldply(py$enrollment_count, data.frame)
+names(enroll)<- c("year", "enrollment")
+
+# write.csv(enroll, "data/input/raw/enrollment_nums.csv", row.names=F)
 ```
 
 ## read in school bus delay data
