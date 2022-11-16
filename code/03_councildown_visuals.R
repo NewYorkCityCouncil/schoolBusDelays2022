@@ -312,8 +312,12 @@ htmltools::save_html(plot_interactive, "visuals/reasons_num_delays.html")
 
 # 06  SWD delays by delay type ----
 
+#read in new data that was previously missing
+library(readr)
+myData <- read_csv("data/output/school_bus_delays_2022_updated.csv.zip")
+
 # data prep
-swd <- x %>% 
+swd <- myData %>% 
   mutate(day=day(Occurred_On), 
          month=month(Occurred_On), 
          year=year(Occurred_On)) %>% 
