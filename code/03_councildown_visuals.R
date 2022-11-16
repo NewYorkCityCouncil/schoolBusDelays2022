@@ -52,9 +52,9 @@ plot <-
                      labels = scales::comma(seq(0,
                                   max(delays_monyr$count),
                                   1000))) +
-  labs(title="School Bus Delays per Month", 
+  labs(title="Monthly School Bus Delays", 
        x="School Year Calendar Months",  
-       y="Number of Delays") +
+       y="Number of Delays", color="SY") +
   theme(axis.text.x = element_text(angle = 0, hjust = 1),
         legend.position = "top")
 
@@ -97,9 +97,9 @@ plot <-
                                   2),
                      labels = seq(0,max(delays_monyr$average_month),
                                                 2)) +
-  labs(title="School Bus Average Delay Times per Month", 
+  labs(title="Monthly Average Delay Times", 
        x="School Year Calendar Months",  
-       y="Average Delay Times") +
+       y="Average Delay Times", color="SY") +
   theme(axis.text.x = element_text(angle = 0, hjust = 1),
         legend.position = "top")
 
@@ -205,7 +205,7 @@ plot <-
   coord_flip() +
   labs(title="Reasons with Longest Delay Times",
        subtitle = "(2021-2022 to Present)", 
-       x="",  y="Number of Delays") +
+       x="",  y="Number of Delays", color="SY") +
   theme(axis.text.x = element_text(angle = 0, hjust = 1),
         legend.position = "none")
 
@@ -228,15 +228,17 @@ htmltools::save_html(plot_interactive, "visuals/most_delays.html")
 # 05 Reasons for delay over time ----
 
 # data prep
-top_reasons <- x %>% # getting the top 5 reasons since 2017 to present
+top_reasons <- x %>% 
+  mutate(day=day(Occurred_On), 
+         month=month(Occurred_On), 
+         year=year(Occurred_On)) %>% 
+  filter(year>=2021) %>% 
   filter(Reason!="") %>% 
   group_by(Reason) %>% 
   summarize(count=n()) %>% 
   mutate(percent=round(count/sum(count)*100,3)) %>% 
-  arrange(desc(count)) %>% 
-  top_n(5, wt = percent) %>% 
-  select(Reason) %>% 
-  unlist()
+  arrange(desc(count)) %>% top_n(5, wt=percent) %>% 
+  select(Reason) %>% unlist()
 
 t <- x %>% 
   mutate(day=day(Occurred_On), 
@@ -250,6 +252,7 @@ t <- x %>%
   mutate(Reason = factor(Reason, levels = top_reasons),
     month_char=month.abb[month], 
          my=factor(month_char, levels= unique(delays_monyr$month_char)),
+    month=factor(month, levels= unique(delays_monyr$month)),
          monyr=ym(paste(year,month, sep=" ")),
          School_Year = case_when(monyr >='2017-09-01' & 
                                    monyr<='2018-06-01' ~ '2017-2018',
@@ -288,8 +291,9 @@ plot <- t %>%
                                   1000)) +
   labs(title="Monthly School Bus Delays by Reason", 
        x="School Year Calendar Months",  
-       y="Number of Delays") +
-  theme(axis.text.x = element_text(angle = 0, hjust = 1),
+       y="Number of Delays",
+       color = "SY") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "top")
 
 tooltip_css <- "background-color:#CACACA;"
@@ -359,7 +363,8 @@ plot <- swd %>%
                                   4)) +
   labs(title="School Bus Average Delay Times per Month", 
        x="School Year Calendar Months",  
-       y="Average Delay Times") +
+       y="Average Delay Times",
+       color="SY") +
   theme(axis.text.x = element_text(angle = 0, hjust = 1),
         legend.position = "top")
   
