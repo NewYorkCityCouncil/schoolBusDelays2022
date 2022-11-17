@@ -149,8 +149,8 @@ plot <-
             nudge_x = 0, nudge_y = 4) +
   scale_y_continuous(expand = expansion(mult = c(0, .1))) +
   ylab("Average Minutes Delayed") + xlab("") +
-  labs(title="Reasons with Longest Delay Times",
-       subtitle = "(SY 21-22 - Present)", 
+  labs(title="",
+       subtitle = "Reasons with Longest Delay Times", 
        x="",  y="Average Minutes Delayed") +
   theme(axis.text.x = element_text(angle = 0, hjust = 1),
         legend.position = "none")
@@ -208,8 +208,8 @@ plot <-
                      labels = scales::comma(
                        round(seq(0,max(reasons$count),10000),2)),
                      expand = expansion(mult = c(0, .1))) +
-  labs(title="Reasons with the Most Delays",
-       subtitle = "(SY 21-22 to Present)", 
+  labs(title="",
+       subtitle = "Reasons with the Most Delays", 
        x="",  y="Number of Delays", color="SY") +
   theme(axis.text.x = element_text(angle = 0, hjust = 1),
         legend.position = "none")
