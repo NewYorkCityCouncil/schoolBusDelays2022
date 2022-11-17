@@ -150,7 +150,7 @@ plot <-
   scale_y_continuous(expand = expansion(mult = c(0, .1))) +
   ylab("Average Minutes Delayed") + xlab("") +
   labs(title="",
-       subtitle = "Reasons with Longest Delay Times", 
+       subtitle = "Longest Delays", 
        x="",  y="Average Minutes Delayed") +
   theme(axis.text.x = element_text(angle = 0, hjust = 1),
         legend.position = "none")
@@ -209,7 +209,7 @@ plot <-
                        round(seq(0,max(reasons$count),10000),2)),
                      expand = expansion(mult = c(0, .1))) +
   labs(title="",
-       subtitle = "Reasons with the Most Delays", 
+       subtitle = "Most Delays", 
        x="",  y="Number of Delays", color="SY") +
   theme(axis.text.x = element_text(angle = 0, hjust = 1),
         legend.position = "none")
