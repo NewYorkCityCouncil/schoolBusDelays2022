@@ -294,7 +294,7 @@ plot <- t %>%
                                   1000),
                      labels = scales::comma(seq(0,max(t$norm_count),
                                   1000))) +
-  labs(title="Delays Over Time by Reason", 
+  labs(title="", 
        x="School Year Calendar Months",  
        y="Number of Delays",
        color = "SY") +
@@ -370,7 +370,7 @@ plot <- swd %>%
                                   4),
                      labels = seq(0,max(swd$average_month),
                                   4)) +
-  labs(title="Delay Times Over Time by Run Type", 
+  labs(title="", 
        x="School Year Calendar Months",  
        y="Average Daily Minutes",
        color="SY") +
@@ -392,7 +392,7 @@ plot <- swd %>%
   htmltools::save_html(plot_interactive, "visuals/swd_delaytimes.html")
   
   
- ########
+ ######## unused code ----
 library(readxl)
 
 d1 <- read_xlsx("./data/input/raw/calendar_days_hs.xlsx") %>% 
