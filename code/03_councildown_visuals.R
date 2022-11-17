@@ -15,7 +15,7 @@ delays_monyr <- x %>%
   summarize(count=n(), 
             average_month=mean(delay_time)) %>% 
   mutate(month_char=month.abb[month], 
-         my=factor(month_char, levels= unique(delays_monyr$month_char)),
+         my=factor(month_char, levels= unique(month_char)),
          monyr=ym(paste(year,month, sep=" ")),
          School_Year = case_when(monyr >='2017-09-01' & 
                                    monyr<='2018-06-01' ~ '2017-2018',
@@ -52,7 +52,7 @@ plot <-
                      labels = scales::comma(seq(0,
                                   max(delays_monyr$count),
                                   1000))) +
-  labs(title="Monthly School Bus Delays", 
+  labs(title="Number of Delays Over Time", 
        x="School Year Calendar Months",  
        y="Number of Delays", color="SY") +
   theme(axis.text.x = element_text(angle = 0, hjust = 1),
@@ -61,8 +61,8 @@ plot <-
 tooltip_css <- "background-color:#CACACA;"
 
 plot_interactive <- girafe(ggobj = plot,   
-                           width_svg = 11,
-                           height_svg = 8, 
+                           width_svg = 9,
+                           height_svg = 5, 
                            options = list(
                              opts_tooltip(css = tooltip_css)
                            )
@@ -97,17 +97,17 @@ plot <-
                                   2),
                      labels = seq(0,max(delays_monyr$average_month),
                                                 2)) +
-  labs(title="Monthly Average Delay Times", 
+  labs(title="Average Daily Delay Times", 
        x="School Year Calendar Months",  
-       y="Average Delay Times", color="SY") +
+       y="Minutes", color="SY") +
   theme(axis.text.x = element_text(angle = 0, hjust = 1),
         legend.position = "top")
 
 tooltip_css <- "background-color:#CACACA;"
 
 plot_interactive <- girafe(ggobj = plot,   
-                           width_svg = 11,
-                           height_svg = 8, 
+                           width_svg = 9,
+                           height_svg = 5, 
                            options = list(
                              opts_tooltip(css = tooltip_css)
                            )
@@ -147,9 +147,10 @@ plot <-
   geom_text(show.legend = F, size = 3,
             label= paste0(round(reasons$average_time, 0), " min."), 
             nudge_x = 0, nudge_y = 4) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1))) +
   ylab("Average Minutes Delayed") + xlab("") +
   labs(title="Reasons with Longest Delay Times",
-       subtitle = "(2021-2022 to Present)", 
+       subtitle = "(SY 21-22 - Present)", 
        x="",  y="Average Minutes Delayed") +
   theme(axis.text.x = element_text(angle = 0, hjust = 1),
         legend.position = "none")
@@ -157,8 +158,8 @@ plot <-
 tooltip_css <- "background-color:#CACACA;"
 
 plot_interactive <- girafe(ggobj = plot,   
-                           width_svg = 11,
-                           height_svg = 8, 
+                           width_svg = 7,
+                           height_svg = 4, 
                            options = list(
                              opts_tooltip(css = tooltip_css)
                            )
@@ -192,19 +193,23 @@ plot <-
              y=count, fill = Reason)) +
   geom_col_interactive(width = 0.6,
                        tooltip = 
-                         paste("Reason:", reasons$Reason, 
-                               "<br>Count:", 
-                               reasons$count, "<br>Percent:", 
-                               paste(reasons$percent,"%", sep="")) ) +
+            paste0("Reason: ", reasons$Reason, 
+                               "<br>Count: ", 
+                      scales::comma(round(reasons$count,2)), 
+                   "<br>Percent: ", 
+                     scales::percent(reasons$percent, scale = 1))
+                ) +
   scale_fill_nycc(palette = "main") +
-  scale_y_continuous(breaks = seq(0,max(reasons$count), 10000),
-                     labels = scales::comma(seq(0,max(reasons$count), 10000))) +
-  geom_text(show.legend = F, size = 3,
-            label= scales::comma(reasons$count), 
-            nudge_x = 0, nudge_y = 6) +
   coord_flip() +
-  labs(title="Reasons with Longest Delay Times",
-       subtitle = "(2021-2022 to Present)", 
+  geom_text(show.legend = F, size = 3,
+            label= scales::comma(round(reasons$count,2)), 
+            nudge_x = 0, hjust = -0.15) + #nudge_y not working for some reason
+  scale_y_continuous(breaks = seq(0,max(reasons$count), 10000),
+                     labels = scales::comma(
+                       round(seq(0,max(reasons$count),10000),2)),
+                     expand = expansion(mult = c(0, .1))) +
+  labs(title="Reasons with the Most Delays",
+       subtitle = "(SY 21-22 to Present)", 
        x="",  y="Number of Delays", color="SY") +
   theme(axis.text.x = element_text(angle = 0, hjust = 1),
         legend.position = "none")
@@ -212,8 +217,8 @@ plot <-
 tooltip_css <- "background-color:#CACACA;"
 
 plot_interactive <- girafe(ggobj = plot,   
-                           width_svg = 11,
-                           height_svg = 8, 
+                           width_svg = 7,
+                           height_svg = 4, 
                            options = list(
                              opts_tooltip(css = tooltip_css)
                            )
@@ -287,9 +292,9 @@ plot <- t %>%
   scale_color_nycc(palette = "main", reverse = T) +
   scale_y_continuous(breaks = seq(0, max(t$norm_count),
                                   1000),
-                     labels = seq(0,max(t$norm_count),
-                                  1000)) +
-  labs(title="Monthly School Bus Delays by Reason", 
+                     labels = scales::comma(seq(0,max(t$norm_count),
+                                  1000))) +
+  labs(title="Delays Over Time by Reason", 
        x="School Year Calendar Months",  
        y="Number of Delays",
        color = "SY") +
@@ -299,8 +304,8 @@ plot <- t %>%
 tooltip_css <- "background-color:#CACACA;"
 
 plot_interactive <- girafe(ggobj = plot,   
-                           width_svg = 11,
-                           height_svg = 8, 
+                           width_svg = 10,
+                           height_svg = 5, 
                            options = list(
                              opts_tooltip(css = tooltip_css)
                            )
@@ -365,9 +370,9 @@ plot <- swd %>%
                                   4),
                      labels = seq(0,max(swd$average_month),
                                   4)) +
-  labs(title="School Bus Average Delay Times per Month", 
+  labs(title="Delay Times Over Time by Run Type", 
        x="School Year Calendar Months",  
-       y="Average Delay Times",
+       y="Average Daily Minutes",
        color="SY") +
   theme(axis.text.x = element_text(angle = 0, hjust = 1),
         legend.position = "top")
@@ -375,8 +380,8 @@ plot <- swd %>%
   tooltip_css <- "background-color:#CACACA;"
   
   plot_interactive <- girafe(ggobj = plot,   
-                             width_svg = 11,
-                             height_svg = 8, 
+                             width_svg = 10,
+                             height_svg = 5, 
                              options = list(
                                opts_tooltip(css = tooltip_css)
                              )
