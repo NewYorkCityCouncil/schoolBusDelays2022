@@ -55,8 +55,9 @@ plot <-
   labs(title="Number of Delays Over Time", 
        x="School Year Calendar Months",  
        y="Number of Delays", color="SY") +
-  theme(axis.text.x = element_text(angle = 0, hjust = 1),
-        legend.position = "top")
+  theme(axis.text.x = element_text(angle = 0, hjust = 1, size = 9),
+        legend.position = "top",
+        axis.text.y = element_text(size = 9))
 
 tooltip_css <- "background-color:#CACACA;"
 
@@ -100,8 +101,9 @@ plot <-
   labs(title="Average Daily Delay Times", 
        x="School Year Calendar Months",  
        y="Minutes", color="SY") +
-  theme(axis.text.x = element_text(angle = 0, hjust = 1),
-        legend.position = "top")
+  theme(axis.text.x = element_text(angle = 0, hjust = 1, size = 9),
+        legend.position = "top",
+        axis.text.y = element_text(size = 9))
 
 tooltip_css <- "background-color:#CACACA;"
 
@@ -152,8 +154,9 @@ plot <-
   labs(title="",
        subtitle = "Longest Delays", 
        x="",  y="Average Minutes Delayed") +
-  theme(axis.text.x = element_text(angle = 0, hjust = 1),
-        legend.position = "none")
+  theme(axis.text.x = element_text(angle = 0, hjust = 1, size = 9),
+        legend.position = "none",
+        axis.text.y = element_text(size = 9))
 
 tooltip_css <- "background-color:#CACACA;"
 
@@ -211,8 +214,9 @@ plot <-
   labs(title="",
        subtitle = "Most Delays", 
        x="",  y="Number of Delays", color="SY") +
-  theme(axis.text.x = element_text(angle = 0, hjust = 1),
-        legend.position = "none")
+  theme(axis.text.x = element_text(angle = 0, hjust = 1, size = 9),
+        legend.position = "none",
+        axis.text.y = element_text(size = 9))
 
 tooltip_css <- "background-color:#CACACA;"
 
@@ -298,8 +302,9 @@ plot <- t %>%
        x="School Year Calendar Months",  
        y="Number of Delays",
        color = "SY") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.position = "top")
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+         legend.position = "top",
+         axis.text.y = element_text(size = 9))
 
 tooltip_css <- "background-color:#CACACA;"
 
@@ -374,8 +379,9 @@ plot <- swd %>%
        x="School Year Calendar Months",  
        y="Average Daily Minutes",
        color="SY") +
-  theme(axis.text.x = element_text(angle = 0, hjust = 1),
-        legend.position = "top")
+  theme(axis.text.x = element_text(angle = 0, hjust = 1, size = 9),
+        legend.position = "top",
+        axis.text.y = element_text(size = 9))
   
   tooltip_css <- "background-color:#CACACA;"
   
