@@ -18,7 +18,7 @@ On November 21, 2022, the Oversight & Investigations and Education committees, c
 The data team analyzed bus breakdown and delay data in order to:
 - Assess the severity of the problem 
 - Identify the most common reasons for bus delays 
-- Try to identify bus delay trends by the type of busing route
+- Identify bus delay trends by the type of busing route
 - Release recommendations for better reporting
 
 #### Main Takeaways
