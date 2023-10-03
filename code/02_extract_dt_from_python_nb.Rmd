@@ -107,7 +107,9 @@ covid = {'School Year': '2021-2022',
         }
 covid
 
-data = data.append(covid, ignore_index=True) 
+#data = data.append(covid, ignore_index=True) 
+covid_df = pd.DataFrame([covid])
+data = pd.concat([data, covid_df], ignore_index=True)
 ```
 ## reference safe keeps in R
 ```{r}
@@ -254,7 +256,7 @@ data_orig = data_orig[data_orig['occurred_on'].dt.dayofweek <= 4]
 ```
 
 ```{r}
-
+# We don't need this
 final <- r2 %>% 
   select(1:22) %>% 
   mutate(occurred_on = as.Date(occurred_on)) %>% 
