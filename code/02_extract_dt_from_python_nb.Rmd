@@ -158,7 +158,8 @@ enrollment_count = {
     2019: 1131868,
     2020: 1094138,
     2021: 1058888,
-    2022: 1058888*.982 #This is an based on the 1.8% drop in school population from last year. Per info provided by DOE
+    2022: 1047895,
+    2023: 1047895*0.989 #This is an based on the 1.1% drop in school population from last year. Per info provided by DOE
 }
 ```
 
