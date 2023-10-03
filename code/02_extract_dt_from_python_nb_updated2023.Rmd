@@ -12,6 +12,9 @@ require("knitr")
 opts_knit$set(root.dir = "~/Desktop/Data_Projects/schoolBusDelays2022")
 library(reticulate)
 use_condaenv("r-reticulate")
+#py_install("scipy")
+#py_install("pandas")
+#py_install("statsmodels")
 scipy <- import("scipy")
 dt <- import("datetime")
 pd <- import("pandas")
@@ -107,7 +110,9 @@ covid = {'School Year': '2021-2022',
         }
 covid
 
-data = data.append(covid, ignore_index=True) 
+#data = data.append(covid, ignore_index=True)
+covid_df = pd.DataFrame([covid])
+data = pd.concat([data, covid_df], ignore_index=True)
 ```
 ## reference safe keeps in R
 ```{r}
@@ -253,10 +258,12 @@ data_orig = data_orig[data_orig['closed'] == 1]
 
 data_orig = data_orig[data_orig['occurred_on'].dt.dayofweek <= 4]
 
+#data_orig.to_csv('/Users/nycc/Desktop/data_orig_updated_oct_2023.csv')
 ```
 
-```{r}
 
+```{r}
+# We dont need this
 final <- r2 %>% 
   select(1:22) %>% 
   mutate(occurred_on = as.Date(occurred_on)) %>% 
