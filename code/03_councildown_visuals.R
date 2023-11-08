@@ -28,7 +28,10 @@ delays_monyr <- x %>%
                                  monyr >='2021-09-01' & 
                                    monyr<='2022-06-01' ~ '2021-2022',
                                  monyr >='2022-09-01' & 
-                                   monyr<='2023-06-01' ~ '2022-2023'))
+                                   monyr<='2023-06-01' ~ '2022-2023',
+                                 monyr >='2023-09-01' & 
+                                   monyr<='2024-06-01' ~ '2023-2024'
+                                ))
 
 
 # plot
@@ -55,9 +58,7 @@ plot <-
   labs(title="Number of Delays Over Time", 
        x="School Year Calendar Months",  
        y="Number of Delays", color="SY") +
-  theme(axis.text.x = element_text(angle = 0, hjust = 1, size = 9),
-        legend.position = "top",
-        axis.text.y = element_text(size = 9))
+  theme_nycc() 
 
 tooltip_css <- "background-color:#CACACA;"
 
