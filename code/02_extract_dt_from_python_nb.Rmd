@@ -19,6 +19,7 @@ np <- import("numpy")
 #repl_python() #test
 ```
 
+
 # load pkgs
 ```{python import python pkgs}
 import pandas as pd
@@ -26,13 +27,8 @@ import numpy as np
 from scipy.stats import pearsonr
 from scipy.stats import norm
 
-import statsmodels.api as sm
 import re
 import calendar
-
-
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 import copy
 
@@ -168,7 +164,7 @@ enrollment_count = {
 enroll<- plyr::ldply(py$enrollment_count, data.frame)
 names(enroll)<- c("year", "enrollment")
 
-# write.csv(enroll, "data/input/raw/enrollment_nums.csv", row.names=F)
+write.csv(enroll, "../data/input/raw/enrollment_nums.csv", row.names=F)
 ```
 
 ## read in school bus delay data
@@ -177,6 +173,11 @@ data_orig = pd.read_json("https://data.cityofnewyork.us/resource/ez4e-fazm.json?
 
 data_orig['occurred_on'] = pd.to_datetime(data_orig['occurred_on'])
 
+```
+
+## checking dates
+```{r}
+View(py$data_orig)
 ```
 
 ## reference safe keeps in R
@@ -225,14 +226,14 @@ data_orig['delay_time'] = data_orig.how_long_delayed.astype(str).apply(clean_del
 ## remove 2 data entry error rows
 ```{r}
 # noticed two entries with funny times
-c('15-320MINS'	'20-225 MIN')
+c('15-320MINS',	'20-225 MIN')
 ```
 
 ## DOE gave dates - check with ours
 ```{r}
-library(readxl)
+# library(readxl)
 
-d1 <- read_xlsx("./data/input/raw/calendar_days_hs.xlsx")
+# d1 <- read_xlsx("./data/input/raw/calendar_days_hs.xlsx")
 # d2 <- read_xlsx('~/data/input/raw/calendar.days.2015-2022.d110822.elementary.school.xlsx')
 ```
 
@@ -254,13 +255,17 @@ data_orig = data_orig[data_orig['closed'] == 1]
 
 data_orig = data_orig[data_orig['occurred_on'].dt.dayofweek <= 4]
 
+# downloading
+data_orig.to_csv("../data/output/filtered_weekends_vacation_covid_delays.csv")
 ```
 
 ```{r}
 # We don't need this
+'''
 final <- r2 %>% 
   select(1:22) %>% 
   mutate(occurred_on = as.Date(occurred_on)) %>% 
   filter(occurred_on %in% dates$hs)
+'''
 ```
 

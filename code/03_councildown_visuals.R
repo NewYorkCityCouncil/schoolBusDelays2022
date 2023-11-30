@@ -1,16 +1,23 @@
 # read in filtered, cleaned school bus delay data -----
-x <-  read_csv("data/output/filtered_weekends_vacation_covid_delays.csv")
+
+library(tidyverse)
+library(ggplot2)
+library(ggiraph)
+library(councilverse)
+
+setwd("~/Desktop/schoolBusDelays2022-main/code")
+x <-  read_csv("../data/output/filtered_weekends_vacation_covid_delays.csv")
 # read in enrollment nums
-enroll <- read_csv("data/input/raw/enrollment_nums.csv") %>% 
+enroll <- read_csv("../data/input/raw/enrollment_nums.csv") %>% 
   mutate(year = as.numeric(year))
 
 # 01 Total Delays per Month ----
 
 # data prep 
 delays_monyr <- x %>% 
-  mutate(day=day(Occurred_On), 
-         month=month(Occurred_On), 
-         year=year(Occurred_On)) %>% 
+  mutate(day=day(occurred_on), 
+         month=month(occurred_on), 
+         year=year(occurred_on)) %>% 
   group_by(year, month) %>% 
   summarize(count=n(), 
             average_month=mean(delay_time)) %>% 
@@ -32,7 +39,9 @@ delays_monyr <- x %>%
                                  monyr >='2023-09-01' & 
                                    monyr<='2024-06-01' ~ '2023-2024'
                                 ))
-
+# filtering out N/A values
+delays_monyr = delays_monyr %>%
+  filter(!is.na(School_Year))
 
 # plot
 
@@ -72,7 +81,7 @@ plot_interactive <- girafe(ggobj = plot,
             
 
 
-htmltools::save_html(plot_interactive, "visuals/num_monthly_delays.html")
+htmltools::save_html(plot_interactive, "../visuals/num_monthly_delays.html")
 
 
 # 02 Avg Delay Times per Month ----
