@@ -1,0 +1,294 @@
+---
+title: "monthly_bus_delays"
+output: html_document
+date: "2023-11-30"
+---
+
+# Set up python enviroment in R & import pkgs
+```{r reticulate setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require("knitr")
+opts_knit$set(root.dir = "~/Desktop/Data_Projects/schoolBusDelays2022")
+library(reticulate)
+use_condaenv("r-reticulate")
+scipy <- import("scipy")
+dt <- import("datetime")
+pd <- import("pandas")
+np <- import("numpy")
+```
+
+# load pkgs
+```{python import python pkgs}
+import pandas as pd
+import numpy as np
+from scipy.stats import pearsonr
+from scipy.stats import norm
+import re
+import calendar
+import copy
+```
+# Data Cleaning
+ 
+## read in calendar dates files
+```{python read in data, echo=FALSE}
+data = pd.read_csv('../data/input/modified/DOE School Calendar Dates_edited.csv').drop(columns = ['Unnamed: 3'])
+data = data.replace('–', '-') 
+```
+
+## clean dates, function to get range dates sorted out
+```{python clean dates, echo=FALSE}
+# Data start date should be Sept. 7, 2017
+
+# Have to preprocess date ranges
+# Split into start and end dates. If there is a hyphen, 
+# take the two numbers on either side of it and use one as start date and one as an end date
+
+# 27-30 Dec 2022
+
+# For this to work, replace all '‚Äì' (big hyphen code) in csv with hyphens '-' 
+
+start_dates, end_dates = [], []
+for i in data['Dates']:
+    if ('-' not in i):
+        start_dates.append(pd.to_datetime(i))
+        end_dates.append(pd.to_datetime(i))
+    else:
+        x = i.split(' ')
+        start_dates.append(pd.to_datetime(' '.join([k.split('-')[0] if ('-' in k) else k for k in x])))
+        end_dates.append(pd.to_datetime(' '.join([k.split('-')[1] if ('-' in k) else k for k in x])))
+        
+data['Start Date'] = start_dates
+data['End Date'] = end_dates 
+```
+
+## define and run school calendar yr function
+```{python school yr func}
+def get_year(school_year, month):
+    if int(month) < 9:
+        return int(school_year[:4]) + 1
+    else:
+        return int(school_year[:4]) 
+```
+
+```{python apply func}
+data['End Date'] = pd.to_datetime(data['End Date'].dt.month.astype(str) + "/" + data['End Date'].dt.day.astype(str) + "/" + data.apply( (lambda x: get_year(x['School Year'], x['End Date'].month)), axis = 1).astype(str))
+
+data['Start Date'] = pd.to_datetime(data['Start Date'].dt.month.astype(str) + "/" + data['Start Date'].dt.day.astype(str) + "/" + data.apply( (lambda x: get_year(x['School Year'], x['Start Date'].month)), axis = 1).astype(str))
+```
+
+## account for covid
+```{python covid func}
+# Adding covid shutdown 3/16/2020 - 9/13/2021
+
+covid = {'School Year': '2021-2022', 
+         'Dates': '3/16/2020 - 9/13/2021', 
+         'Reason': 'COVID', 
+         'Start Date': pd.to_datetime('3/16/2020'), 
+         'End Date': pd.to_datetime('9/13/2021')
+        }
+
+covid_df = pd.DataFrame([covid])
+data = pd.concat([data, covid_df], ignore_index=True)
+```
+
+## reference safe keeps in R
+```{r}
+r <- py$data
+```
+
+### Non-holiday closure dates, students not in attendance
+```{python non-holidays closed}
+# Sort reasons
+data['Closure'] = data['Reason'].apply( lambda x: 1 if  ( ("closed" in x) | 
+                                       ("no students" in x) | 
+                                       ("9-12 schools only" in x) | 
+                                       ("remote" in x) | 
+                                       ("hours early" in x) | 
+                                       ("do not attend" in x) | 
+                                       ("CLOSED" in x) | 
+                                       ("Clerical Day" in x) | 
+                                       ("staff development" in x) | 
+                                       ("Students not in attendance" in x) | 
+                                       ("Students will not" in x) | 
+                                       ("will not be in attendance" in x) | 
+                                       ("COVID" in x) | 
+                                       ("Summer Recess" in x) ) else 0 )
+```
+
+########
+
+# Analysis 
+
+## read in school enrollment data
+```{python enrollment nums}
+# Enrollment numbers
+# since enrollment #s go back to 2017, we can only use school bus delay #s from 2017 to normalize the data
+# https://infohub.nyced.org/reports/school-quality/information-and-data-overview
+enrollment_count = {
+    2017: 1135334,
+    2018: 1126501,
+    2019: 1131868,
+    2020: 1094138,
+    2021: 1058888,
+    2022: 1047895,
+    2023: 1047895*0.989 #This is an based on the 1.1% drop in school population from last year. Per info provided by DOE
+}
+```
+
+# save to data folder
+```{r}
+enroll<- plyr::ldply(py$enrollment_count, data.frame)
+names(enroll)<- c("year", "enrollment")
+
+write.csv(enroll, "../data/input/raw/enrollment_nums.csv", row.names=F)
+```
+
+## read in school bus delay data
+```{python school bus delays data}
+data_orig = pd.read_json("https://data.cityofnewyork.us/resource/ez4e-fazm.json?$limit=99999999&$where=school_year%20not%20in(%272015-2016%27,%20%272016-2017%27)")
+
+data_orig['occurred_on'] = pd.to_datetime(data_orig['occurred_on'])
+
+```
+
+## checking dates
+```{r}
+View(py$data_orig)
+```
+
+## reference safe keeps in R
+```{r}
+r1 <- py$data_orig
+```
+
+## Function that cleans how_long_delayed column
+```{python func for clean delay times}
+def clean_delay_times(x):
+    a = x
+    x = str(x).lower().rstrip().replace('1 1/2', '1 2').replace('11/2', '1 2').\
+    replace('1/2', '0 1').replace('half', '0 1').replace('to', '-')
+    units = re.findall(r'[a-z ]+', x)
+    time = re.split(r'[- /,]', ''.join(re.findall(r'[0-9 .,/-]+', x)) )
+    time = [i for i in time if not((re.search('[.]+',i) !=None)|(re.search('[ ]+',i) !=None)|(i==''))]
+    if time:
+        time = np.nanmean([float(i) for i in time])
+    else:
+        time = 0
+    
+    if any(i in ''.join(units) for i in ['h', 'r']) and ( time <= 5 ):
+        return time*60
+    elif any(i in ''.join(units) for i in ['m', 'n']) | (x == ''):
+        return time
+    else:
+        return 0
+```
+
+```{python clean how long delay col}
+
+data_orig['delay_time'] = data_orig.how_long_delayed.astype(str).apply(clean_delay_times)
+```
+
+```{python}
+days_closed = data[data['Closure'] == 1]
+
+###########Faster Version####################
+data_orig['closed'] = 1
+
+for row, val in days_closed.iterrows():
+    a = val['Start Date']
+    b = val['End Date'] + pd.DateOffset(1)
+    data_orig.loc[:,('closed')] = data_orig.loc[:,('closed')]*(~data_orig.loc[:,('occurred_on')].apply(
+        lambda x: (x > a) & (x < b)))
+
+data_orig = data_orig[data_orig['closed'] == 1]
+#############################################
+# Eliminate weekends
+
+data_orig = data_orig[data_orig['occurred_on'].dt.dayofweek <= 4]
+```
+
+# downloading
+```{python}
+data_orig.to_csv("../data/output/filtered_weekends_vacation_covid_delays.csv")
+```
+
+# Generating Visuals
+
+```{r}
+x <- read_csv("../data/output/filtered_weekends_vacation_covid_delays.csv")
+# read in enrollment nums
+enroll <- read_csv("../data/input/raw/enrollment_nums.csv") %>% 
+  mutate(year = as.numeric(year))
+```
+
+# 01 Total Delays per Month ----
+```{r}
+# data prep 
+delays_monyr <- x %>% 
+  mutate(day=day(occurred_on), 
+         month=month(occurred_on), 
+         year=year(occurred_on)) %>% 
+  group_by(year, month) %>% 
+  summarize(count=n(), 
+            average_month=mean(delay_time)) %>% 
+  mutate(month_char=month.abb[month], 
+         my=factor(month_char, levels= unique(month_char)),
+         monyr=ym(paste(year,month, sep=" ")),
+         School_Year = case_when(monyr >='2017-09-01' & 
+                                   monyr<='2018-06-01' ~ '2017-2018',
+                                 monyr >='2018-09-01' & 
+                                   monyr<='2019-06-01' ~ '2018-2019',
+                                 monyr >='2019-09-01' & 
+                                   monyr<='2020-06-01' ~ '2019-2020',
+                                 monyr >='2020-09-01' & 
+                                   monyr<='2021-06-01' ~ '2020-2021',
+                                 monyr >='2021-09-01' & 
+                                   monyr<='2022-06-01' ~ '2021-2022',
+                                 monyr >='2022-09-01' & 
+                                   monyr<='2023-06-01' ~ '2022-2023',
+                                 monyr >='2023-09-01' & 
+                                   monyr<='2024-06-01' ~ '2023-2024'
+                                ))
+# filtering out N/A values
+delays_monyr = delays_monyr %>%
+  filter(!is.na(School_Year))
+
+# plot
+
+plot <-   
+  ggplot(data = delays_monyr, 
+         aes(x = my,  y = count)) +
+  geom_line(aes(color=School_Year, group=School_Year), alpha=1) +
+  geom_point_interactive(size=1.5, alpha=0.85,
+                         aes(color=School_Year, group=School_Year),
+                         tooltip = paste(delays_monyr$month_char,
+                                         delays_monyr$year, " :", 
+                                scales::comma(delays_monyr$count),
+                                         " delays")) + 
+  scale_color_nycc(palette = "main", reverse = T) +
+  # geom_smooth(aes(group=1), se=F, size=0.75,
+  #                         alpha =.5, color="#23417D") +
+  scale_y_continuous(breaks = seq(0,
+                                  max(delays_monyr$count),
+                                  1000),
+                     labels = scales::comma(seq(0,
+                                  max(delays_monyr$count),
+                                  1000))) +
+  labs(title="Number of Delays Over Time", 
+       x="School Year Calendar Months",  
+       y="Number of Delays", color="SY") +
+  theme_nycc() 
+
+tooltip_css <- "background-color:#CACACA;"
+
+plot_interactive <- girafe(ggobj = plot,   
+                           width_svg = 9,
+                           height_svg = 5, 
+                           options = list(
+                             opts_tooltip(css = tooltip_css)
+                           )
+)
+
+htmltools::save_html(plot_interactive, "../visuals/num_monthly_delays.html")
+```
+
