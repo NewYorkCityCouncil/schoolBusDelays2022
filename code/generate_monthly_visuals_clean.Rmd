@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 require("knitr")
 opts_knit$set(root.dir = "~/Desktop/Data_Projects/schoolBusDelays2022")
 library(reticulate)
-use_condaenv("r-reticulate")
+#use_condaenv("r-reticulate")
 scipy <- import("scipy")
 dt <- import("datetime")
 pd <- import("pandas")
@@ -28,6 +28,7 @@ import numpy as np
 from scipy.stats import pearsonr
 from scipy.stats import norm
 import re
+import requests
 import calendar
 import copy
 ```
@@ -149,10 +150,24 @@ write.csv(enroll, "../data/input/raw/enrollment_nums.csv", row.names=F)
 
 ## read in school bus delay data
 ```{python school bus delays data}
-data_orig = pd.read_json("https://data.cityofnewyork.us/resource/ez4e-fazm.json?$limit=99999999&$where=school_year%20not%20in(%272015-2016%27,%20%272016-2017%27)")
+#data_orig = pd.read_json("https://data.cityofnewyork.us/resource/ez4e-fazm.json?$limit=99999999&$where=school_year%20not%20in(%272015-2016%27,%20%272016-2017%27)")
+
+#data_orig['occurred_on'] = pd.to_datetime(data_orig['occurred_on'])
+
+# using this to filter out Feb dates
+#data_orig = data_orig[data_orig['occurred_on'] < '2024-02-01']
+```
+
+# code above was not working, so using altnerative
+```{python}
+url = "https://data.cityofnewyork.us/resource/ez4e-fazm.json?$limit=99999999&$where=school_year%20not%20in(%272015-2016%27,%20%272016-2017%27)"
+response = requests.get(url, verify=True)
+data_orig = pd.read_json(response.text)
 
 data_orig['occurred_on'] = pd.to_datetime(data_orig['occurred_on'])
 
+# using this to filter out Feb dates
+data_orig = data_orig[data_orig['occurred_on'] < '2024-02-01']
 ```
 
 ## checking dates
@@ -193,6 +208,7 @@ data_orig['delay_time'] = data_orig.how_long_delayed.astype(str).apply(clean_del
 ```
 
 ```{python}
+
 days_closed = data[data['Closure'] == 1]
 
 ###########Faster Version####################
@@ -293,7 +309,10 @@ plot_interactive <- girafe(ggobj = plot,
                            )
 )
 
-htmltools::save_html(plot_interactive, "../visuals/num_monthly_delays.html")
+plot_interactive
+
+#htmltools::save_html(plot_interactive, "../visuals/num_monthly_delays.html")
+htmlwidgets::saveWidget(plot_interactive, file = "../visuals/num_monthly_delays.html")
 ```
 
 # 02 Avg Delay Times per Month ----
@@ -337,7 +356,7 @@ plot_interactive <- girafe(ggobj = plot,
                            )
 )
 
-
+plot_interactive
 
 htmltools::save_html(plot_interactive,"../visuals/avg_monthly_delay_times.html")
 ```
@@ -391,8 +410,7 @@ plot_interactive <- girafe(ggobj = plot,
                            )
 )
 
-
-htmltools::save_html(plot_interactive, "../visuals/longest_delays.html")
+#htmltools::save_html(plot_interactive, "../visuals/longest_delays.html")
 ```
 
 # 04 Most delays by reason -----
@@ -450,8 +468,7 @@ plot_interactive <- girafe(ggobj = plot,
                            )
 )
 
-
-htmltools::save_html(plot_interactive, "../visuals/most_delays.html")
+#htmltools::save_html(plot_interactive, "../visuals/most_delays.html")
 ```
 
 # 05 Reasons for delay over time ----
@@ -537,7 +554,7 @@ plot_interactive <- girafe(ggobj = plot,
                            )
 )
 
-htmltools::save_html(plot_interactive, "../visuals/reasons_num_delays.html")
+#htmltools::save_html(plot_interactive, "../visuals/reasons_num_delays.html")
 ```
 
 # 06  SWD delays by delay type ----
@@ -613,7 +630,7 @@ plot <- swd %>%
                                opts_tooltip(css = tooltip_css)
                              )
   )
-  
-htmltools::save_html(plot_interactive, "../visuals/swd_delaytimes.html")
+
+#htmltools::save_html(plot_interactive, "../visuals/swd_delaytimes.html")
 ```
 
