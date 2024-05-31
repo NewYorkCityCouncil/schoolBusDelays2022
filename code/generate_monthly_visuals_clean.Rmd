@@ -167,7 +167,7 @@ data_orig = pd.read_json(response.text)
 data_orig['occurred_on'] = pd.to_datetime(data_orig['occurred_on'])
 
 # using this to filter out Feb dates
-data_orig = data_orig[data_orig['occurred_on'] < '2024-02-01']
+data_orig = data_orig[data_orig['occurred_on'] < '2024-06-01']
 ```
 
 ## checking dates
@@ -311,7 +311,6 @@ plot_interactive <- girafe(ggobj = plot,
 
 plot_interactive
 
-#htmltools::save_html(plot_interactive, "../visuals/num_monthly_delays.html")
 htmlwidgets::saveWidget(plot_interactive, file = "../visuals/num_monthly_delays.html")
 ```
 
@@ -633,4 +632,7 @@ plot <- swd %>%
 
 #htmltools::save_html(plot_interactive, "../visuals/swd_delaytimes.html")
 ```
+
+
+
 
