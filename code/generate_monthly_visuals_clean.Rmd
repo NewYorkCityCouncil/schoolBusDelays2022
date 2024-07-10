@@ -166,8 +166,8 @@ data_orig = pd.read_json(response.text)
 
 data_orig['occurred_on'] = pd.to_datetime(data_orig['occurred_on'])
 
-# using this to filter out Feb dates
-data_orig = data_orig[data_orig['occurred_on'] < '2024-06-01']
+# using this to filter to dates of interest
+data_orig = data_orig[data_orig['occurred_on'] < '2024-07-01']
 ```
 
 ## checking dates
