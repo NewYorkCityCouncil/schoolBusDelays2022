@@ -24,11 +24,12 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pandas scipy numpy
+        pip install pandas scipy numpy pyarrow
 
     - name: Run Python script
       run: |
-        python code/get_filtered_weekends_vacation_covid_delays.py
+        cd code
+        python get_filtered_weekends_vacation_covid_delays.py
 
     - name: Commit filtered weekends vacation covid delays
       run: |
@@ -43,11 +44,12 @@ jobs:
 
     - name: Install R dependencies
       run: |
-        Rscript -e 'install.packages(c("dplyr", "readr", "lubridate", "reticulate", "tidyr", "highcharter", "htmlwidgets"), repos="https://cloud.r-project.org/")'
+        sudo apt-get install pandoc
+        Rscript -e 'install.packages(c("dplyr", "readr", "lubridate", "reticulate", "tidyr", "highcharter", "htmlwidgets", "arrow", "pandoc"), repos="https://cloud.r-project.org/")'
 
     - name: Run R script
       run: |
-        Rscript code/get_num_monthly_delays.r
+        Rscript get_num_monthly_delays.r
 
     - name: Commit num monthly delays
       run: |

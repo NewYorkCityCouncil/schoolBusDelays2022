@@ -4,9 +4,11 @@ library(tidyr)
 library(htmlwidgets)
 library(lubridate)
 library(reticulate)
+library(arrow)
+library(pandoc)
 
 
-x <- read_csv("../data/output/filtered_weekends_vacation_covid_delays.csv")
+x <- read_feather("../data/output/filtered_weekends_vacation_covid_delays.feather")
 # read in enrollment nums
 
 delays_monyr <- x %>%
@@ -50,5 +52,4 @@ for (sy in colnames(plotdata)[-1]) {
   h <- h %>% hc_add_series(name = sy, data = as.list(plotdata[[sy]]))
 }
 
-
-saveWidget(h, '../visuals/num_monthly_delays1.html', selfcontained = TRUE)
+saveWidget(h, '../visuals/num_monthly_delays1.html')

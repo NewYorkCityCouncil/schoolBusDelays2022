@@ -3,7 +3,8 @@ import numpy as np
 import re
 import requests
 
-if __name__ == "main":
+if __name__ == "__main__":
+    print("Running get_filtered_weekends_vacation_covid_delays.py")
 
     data = pd.read_csv('../data/input/modified/DOE School Calendar Dates_edited.csv').drop(columns = ['Unnamed: 3'])
     data = data.replace('–', '-') 
@@ -103,4 +104,4 @@ if __name__ == "main":
 
     data_orig = data_orig[data_orig['occurred_on'].dt.dayofweek <= 4]
 
-    data_orig.to_csv("../data/output/filtered_weekends_vacation_covid_delays.csv")
+    data_orig.to_feather("../data/output/filtered_weekends_vacation_covid_delays.feather")
