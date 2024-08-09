@@ -35,7 +35,7 @@ jobs:
       run: |
         git config --global user.name 'github-actions'
         git config --global user.email 'github-actions@github.com'
-        git add data/output/filtered_weekends_vacation_covid_delays.csv
+        git add data/output/filtered_weekends_vacation_covid_delays.feather
         git commit -m 'Update filtered weekends vacation covid delays'
         git push
 
