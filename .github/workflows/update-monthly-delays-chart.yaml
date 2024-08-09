@@ -61,6 +61,7 @@ jobs:
 
     - name: Run R script
       run: |
+        cd code
         Rscript get_num_monthly_delays.r
 
     - name: Commit num monthly delays
