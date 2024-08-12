@@ -4,11 +4,12 @@ library(tidyr)
 library(htmlwidgets)
 library(lubridate)
 library(reticulate)
-library(arrow)
 library(pandoc)
 
 
-x <- read_feather("../data/output/filtered_weekends_vacation_covid_delays.feather")
+pd <- import("pandas")
+x <- pd$read_feather("../data/output/filtered_weekends_vacation_covid_delays.feather")
+
 # read in enrollment nums
 
 delays_monyr <- x %>%
@@ -43,6 +44,10 @@ plotdata <- delays_monyr %>%
 # Ensure that 'month_char' is treated as a factor with levels in the specified order
 plotdata$month_char <- factor(plotdata$month_char, levels = c("Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"))
 
+# Filter out any rows where 'month_char' is not one of the expected values
+plotdata <- plotdata %>%
+  filter(!is.na(month_char))
+
 # Generate the Highcharter plot
 h <- highchart() %>%
   hc_xAxis(categories = plotdata$month_char)
@@ -52,4 +57,4 @@ for (sy in colnames(plotdata)[-1]) {
   h <- h %>% hc_add_series(name = sy, data = as.list(plotdata[[sy]]))
 }
 
-saveWidget(h, '../visuals/num_monthly_delays1.html')
+saveWidget(h, '../visuals/num_monthly_delays1.html', selfcontained = TRUE)

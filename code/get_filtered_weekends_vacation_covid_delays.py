@@ -64,7 +64,7 @@ if __name__ == "__main__":
     data_orig['occurred_on'] = pd.to_datetime(data_orig['occurred_on'])
 
     # using this to filter to dates of interest
-    data_orig = data_orig[data_orig['occurred_on'] < '2024-07-01']
+    # data_orig = data_orig[data_orig['occurred_on'] < '2024-07-01']
 
     def clean_delay_times(x):
         a = x
