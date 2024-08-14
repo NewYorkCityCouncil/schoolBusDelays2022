@@ -58,6 +58,9 @@ for (sy in colnames(plotdata)[-1]) {
   h <- h %>% hc_add_series(name = sy, data = as.list(plotdata[[sy]]))
 }
 
+current_date <- Sys.Date()
+current_time <- format(Sys.time(), "%H:%M:%S")
+
 h <- h %>% hc_title(text = "Number of Delays by Month") %>%
   hc_caption(text = paste("Updated", current_date, "at", current_time))
 
