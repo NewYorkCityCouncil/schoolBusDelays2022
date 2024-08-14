@@ -59,7 +59,8 @@ jobs:
 
     - name: Run get_avg_monthly_delay_time R script
       run: |
-        Rscript get_num_monthly_delays.r
+        cd code
+        Rscript get_avg_monthly_delay_time.r
 
     - name: Commit num monthly delays
       run: |
