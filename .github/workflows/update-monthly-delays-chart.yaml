@@ -1,9 +1,12 @@
 name: Update monthly delays chart
 
 on:
-  schedule:
-    - cron: '0 0 1 * *'
-  workflow_dispatch:
+  push:
+    branches:
+      - erik
+  pull_request:
+    branches:
+      - erik
 
 
 jobs:
@@ -31,6 +34,7 @@ jobs:
 
     - name: Commit filtered weekends vacation covid delays
       run: |
+        git pull
         git config --global user.name 'github-actions'
         git config --global user.email 'github-actions@github.com'
         git add data/output/filtered_weekends_vacation_covid_delays.feather
@@ -59,9 +63,12 @@ jobs:
 
     - name: Commit num monthly delays
       run: |
+        git pull
         git config --global user.name 'github-actions'
         git config --global user.email 'github-actions@github.com'
         git add visuals/num_monthly_delays1.html 
         git add visuals/num_monthly_delays1_files/
-        git commit -m 'Update num monthly delays chart'
+        git add visuals/avg_monthly_delay_times1.html 
+        git add visuals/avg_monthly_delay_times_files/
+        git commit -m 'Update num monthly delays charts'
         git push
