@@ -22,7 +22,7 @@ delays_monyr <- x %>%
   group_by(year, month) %>%
   summarize(
     count = n(),
-    average_month = mean(delay_time),
+    average_month = round(mean(delay_time), 0),
   ) %>%
   mutate(
     month_char = month.abb[month],
@@ -33,12 +33,12 @@ delays_monyr <- x %>%
 
 # Filter relevant columns and pivot data to wide format using pivot_wider
 plotdata <- delays_monyr %>%
-  select(month_char, School_Year, count) %>%
+  select(month_char, School_Year, average_month) %>%
   subset(select = -c(year) ) %>%
   pivot_wider(
     names_from = School_Year,
-    values_from = count,
-    values_fill = list(count = NULL)  # Fill missing values with 0
+    values_from = average_month,
+    values_fill = list(average_month = NULL)  # Fill missing values with 0
   )
 
 # Ensure that 'month_char' is treated as a factor with levels in the specified order
@@ -51,14 +51,17 @@ plotdata <- plotdata %>%
 # Generate the Highcharter plot
 h <- highchart() %>%
   hc_xAxis(categories = plotdata$month_char, title = list(text = "School Year Calendar Months")) %>%
-  hc_yAxis(title = list(text = "Number of Delays")) 
+  hc_yAxis(title = list(text = "Average Delay Time (minutes)")) 
+
+current_date <- Sys.Date()
+current_time <- format(Sys.time(), "%H:%M:%S")
 
 # Add series for each school year
 for (sy in colnames(plotdata)[-1]) {
   h <- h %>% hc_add_series(name = sy, data = as.list(plotdata[[sy]]))
 }
 
-h <- h %>% hc_title(text = "Number of Delays by Month") %>%
+h <- h %>% hc_title(text = "Average Monthly Delay Times") %>%
   hc_caption(text = paste("Updated", current_date, "at", current_time))
 
-saveWidget(h, '../visuals/num_monthly_delays1.html', selfcontained = TRUE)
+saveWidget(h, '../visuals/avg_monthly_delay_times1.html', selfcontained = TRUE)

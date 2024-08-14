@@ -1,12 +1,9 @@
 name: Update monthly delays chart
 
 on:
-  push:
-    branches:
-      - erik
-  pull_request:
-    branches:
-      - erik
+  schedule:
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
 
 jobs:
   update_monthly_delays_chart:
@@ -50,9 +47,13 @@ jobs:
         R_LIB_PATH=$(Rscript -e 'cat(.libPaths()[1])')
         sudo Rscript -e "install.packages(c('dplyr', 'readr', 'lubridate', 'reticulate', 'tidyr', 'highcharter', 'htmlwidgets', 'pandoc'), lib='$R_LIB_PATH', repos='https://cloud.r-project.org/')"    
 
-    - name: Run R script
+    - name: Run get_num_monthly_delays R script
       run: |
         cd code
+        Rscript get_num_monthly_delays.r
+
+    - name: Run get_avg_monthly_delay_time R script
+      run: |
         Rscript get_num_monthly_delays.r
 
     - name: Commit num monthly delays
