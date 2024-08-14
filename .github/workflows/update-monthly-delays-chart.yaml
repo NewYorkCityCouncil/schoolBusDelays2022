@@ -1,9 +1,11 @@
 name: Update monthly delays chart
 
 on:
+  workflow_dispatch:
+  
   schedule:
     - cron: '0 0 1 * *'
-  workflow_dispatch:
+
 
 jobs:
   update_monthly_delays_chart:
