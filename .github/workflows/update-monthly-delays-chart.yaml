@@ -70,6 +70,6 @@ jobs:
         git add visuals/num_monthly_delays1.html 
         git add visuals/num_monthly_delays1_files/
         git add visuals/avg_monthly_delay_times1.html 
-        git add visuals/avg_monthly_delay_times_files/
+        git add visuals/avg_monthly_delay_times1_files/
         git commit -m 'Update num monthly delays charts'
         git push
