@@ -88,5 +88,3 @@ jobs:
             git commit -m "Update num monthly delays charts"
             git push
         fi
-        git commit -m 'Update num monthly delays charts'
-        git push
