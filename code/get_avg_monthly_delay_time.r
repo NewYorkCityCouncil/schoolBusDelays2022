@@ -64,4 +64,23 @@ for (sy in colnames(plotdata)[-1]) {
 h <- h %>% hc_title(text = "Average Monthly Delay Times") %>%
   hc_caption(text = paste("Updated", current_date, "at", current_time))
 
+h <- h %>%
+  hc_exporting(
+    enabled = TRUE,
+    buttons = list(
+      contextButton = list(
+        menuItems = list(
+          list(
+            text = 'Download PNG',
+            onclick = JS("function () { this.exportChart(); }")  # Default function to download PNG
+          ),
+          list(
+            text = 'Download CSV',
+            onclick = JS("function () { this.downloadCSV(); }")
+          )
+        )
+      )
+    )
+  )
+
 saveWidget(h, '../visuals/avg_monthly_delay_times1.html', selfcontained = TRUE)

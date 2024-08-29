@@ -64,4 +64,22 @@ current_time <- format(Sys.time(), "%H:%M:%S")
 h <- h %>% hc_title(text = "Number of Delays by Month") %>%
   hc_caption(text = paste("Updated", current_date, "at", current_time))
 
+h <- h %>%
+  hc_exporting(
+    enabled = TRUE,
+    buttons = list(
+      contextButton = list(
+        menuItems = list(
+          list(
+            text = 'Download PNG',
+            onclick = JS("function () { this.exportChart(); }")  # Default function to download PNG
+          ),
+          list(
+            text = 'Download CSV',
+            onclick = JS("function () { this.downloadCSV(); }")
+          )
+        )
+      )
+    )
+  )
 saveWidget(h, '../visuals/num_monthly_delays1.html', selfcontained = TRUE)
