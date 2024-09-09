@@ -82,4 +82,4 @@ h <- h %>%
       )
     )
   )
-saveWidget(h, '../visuals/num_monthly_delays1.html', selfcontained = TRUE)
+saveWidget(h, '../visuals/num_monthly_delays.html', selfcontained = TRUE)
