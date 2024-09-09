@@ -3,13 +3,13 @@ name: Update monthly delays chart
 on:
   push:
     branches:
-      - erik
+      - main
   pull_request:
     branches:
-      - erik
-  # schedule:
-  #   - cron: '0 0 1 * *'
-  # workflow_dispatch:
+      - main
+  schedule:
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
 
 
 jobs:
