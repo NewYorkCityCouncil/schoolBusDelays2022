@@ -48,10 +48,70 @@ plotdata$month_char <- factor(plotdata$month_char, levels = c("Sep", "Oct", "Nov
 plotdata <- plotdata %>%
   filter(!is.na(month_char))
 
+nycc_thm <- hc_theme(
+  chart = list(
+    style = list(
+      fontFamily = "Georgia"  # Set font to Georgia
+    )
+  ),
+  colors = c("#660000","#1850b5","#ba9f64","#1f3a70","#b3b3ff","#af6d46","#666666"),
+  title = list(
+    style = list(
+      color = "#222222",  # Set title color to black
+      fontFamily = "Georgia"
+    )
+  ),
+  subtitle = list(
+    style = list(
+      color = "#666666",  # Set subtitle color to dark grey
+      fontFamily = "Georgia"
+    )
+  ),
+  caption = list(
+    style = list(
+      color = "#666666",  # Set subtitle color to dark grey
+      fontFamily = "Georgia"
+    )
+  ),
+  xAxis = list(
+    labels = list(
+      style = list(
+        color = "#666666",  # Set xAxis label color to dark grey
+        fontFamily = "Georgia"
+      )
+    ),
+    title = list(
+      style = list(
+        color = "#666666",  # Set xAxis title color to dark grey
+        fontFamily = "Georgia"
+      )
+    )
+  ),
+  yAxis = list(
+    labels = list(
+      style = list(
+        color = "#666666",  # Set yAxis label color to dark grey
+        fontFamily = "Georgia"
+      )
+    ),
+    title = list(
+      style = list(
+        color = "#666666",  # Set yAxis title color to dark grey
+        fontFamily = "Georgia"
+      )
+    )
+  ),
+  legend = list(
+    itemStyle = list(
+      fontFamily = "Georgia"
+    )
+  )
+)
+
 # Generate the Highcharter plot
 h <- highchart() %>%
   hc_xAxis(categories = plotdata$month_char, title = list(text = "School Year Calendar Months")) %>%
-  hc_yAxis(title = list(text = "Average Delay Time (minutes)")) 
+  hc_yAxis(title = list(text = "Average Delay Time (minutes)")) %>% hc_add_theme(nycc_thm)
 
 current_date <- Sys.Date()
 current_time <- format(Sys.time(), "%H:%M:%S")
