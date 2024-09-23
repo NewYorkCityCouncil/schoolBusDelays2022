@@ -314,7 +314,81 @@ plot_interactive
 htmlwidgets::saveWidget(plot_interactive, file = "../visuals/num_monthly_delays.html")
 ```
 
-# 02 Avg Delay Times per Month ----
+# 02 Total Delays per Month (as percent of total trips) ----
+```{r}
+# Adding column for total monthly trips 
+trips_per_month = read_csv('../data/output/total_bus_trips_per_month.csv')
+trips_per_month$Date <- as.Date(trips_per_month$Date)
+trips_per_month <- trips_per_month %>% rename(total_trips = 'Total Count of Trips')
+
+# Extract 'year' and 'month' from date columns in both data frames
+delays_monyr <- delays_monyr %>%
+  mutate(year = year(monyr), month = month(monyr))
+
+trips_per_month <- trips_per_month %>%
+  mutate(year = year(Date), month = month(Date))
+
+# Merge based on 'year' and 'month'
+per_delays_monyr <- merge(
+  delays_monyr, 
+  trips_per_month %>% select(year, month, total_trips), 
+  by = c("year", "month")
+) %>% rename(total_delays = 'count')
+
+# Find percent 
+per_delays_monyr['delay_per_of_total_trips'] = 100*per_delays_monyr['total_delays'] / per_delays_monyr['total_trips']
+per_delays_monyr['delay_per_of_total_trips'] <- round(per_delays_monyr['delay_per_of_total_trips'], 2)
+
+# Dropping N/A
+per_delays_monyr <- per_delays_monyr %>%
+  filter(!is.na(delay_per_of_total_trips))
+
+# Plot
+
+plot <-   
+  ggplot(data = per_delays_monyr, 
+         aes(x = my,  y = delay_per_of_total_trips)) +
+  geom_line(aes(color=School_Year, group=School_Year), alpha=1) +
+  geom_point_interactive(size=1.5, alpha=0.85,
+                         aes(color=School_Year, group=School_Year),
+                         tooltip = paste(per_delays_monyr$month_char,
+                             per_delays_monyr$year, ":", 
+                             round(per_delays_monyr$delay_per_of_total_trips, 2), 
+                             "% of all trips")) + 
+  scale_color_nycc(palette = "main", reverse = T) +
+  scale_y_continuous(breaks = seq(0,
+                                  max(per_delays_monyr$delay_per_of_total_trips),
+                                  1000),
+                     labels = scales::comma(seq(0,
+                                  max(per_delays_monyr$delay_per_of_total_trips),
+                                  1000))) +
+  labs(title="Delayed Trips As Percent of All Trips", 
+       x="School Year Calendar Months",  
+       y="Percent of All Trips", color="SY") +
+  theme_nycc() 
+
+tooltip_css <- "background-color:#CACACA;"
+
+plot_interactive <- girafe(ggobj = plot,   
+                           width_svg = 9,
+                           height_svg = 5, 
+                           options = list(
+                             opts_tooltip(css = tooltip_css)
+                           )
+)
+
+plot_interactive
+
+htmlwidgets::saveWidget(plot_interactive, file = "../visuals/percent_monthly_delays.html")
+
+selected_columns <- per_delays_monyr[, c("School_Year", "year", "month_char", "total_delays", "total_trips", "delay_per_of_total_trips")]
+write.csv(selected_columns, "../data/output/percent_monthly_delays.csv", row.names = FALSE)
+```
+```{r}
+View(per_delays_monyr)
+```
+
+# 03 Avg Delay Times per Month ----
 ```{r}
 # same dataset is used
 
@@ -360,7 +434,7 @@ plot_interactive
 htmltools::save_html(plot_interactive,"../visuals/avg_monthly_delay_times.html")
 ```
 
-# 03 Longest delays by reason -----
+# 04 Longest delays by reason -----
 ```{r}
 
 # data prep
@@ -412,7 +486,7 @@ plot_interactive <- girafe(ggobj = plot,
 #htmltools::save_html(plot_interactive, "../visuals/longest_delays.html")
 ```
 
-# 04 Most delays by reason -----
+# 05 Most delays by reason -----
 ```{r}
 
 # data prep
@@ -470,7 +544,7 @@ plot_interactive <- girafe(ggobj = plot,
 #htmltools::save_html(plot_interactive, "../visuals/most_delays.html")
 ```
 
-# 05 Reasons for delay over time ----
+# 06 Reasons for delay over time ----
 ```{r}
 
 # data prep
@@ -556,7 +630,7 @@ plot_interactive <- girafe(ggobj = plot,
 #htmltools::save_html(plot_interactive, "../visuals/reasons_num_delays.html")
 ```
 
-# 06  SWD delays by delay type ----
+# 07  SWD delays by delay type ----
 ```{r}
 
 #read in new data that was previously missing
