@@ -57,7 +57,8 @@ jobs:
         sudo apt-get install -y default-jdk
         sudo apt-get install pandoc
         R_LIB_PATH=$(Rscript -e 'cat(.libPaths()[1])')
-        sudo Rscript -e "install.packages(c('Rcpp', 'RcppTOML'), repos='http://cran.r-project.org')"
+        sudo apt-get install r-cran-rcpp
+        sudo apt-get install r-cran-rcpptoml
         sudo Rscript -e "install.packages(c('dplyr', 'readr', 'lubridate', 'reticulate', 'tidyr', 'highcharter', 'htmlwidgets', 'pandoc'), lib='$R_LIB_PATH', repos='https://cloud.r-project.org/')"    
 
     - name: Run get_num_monthly_delays R script
