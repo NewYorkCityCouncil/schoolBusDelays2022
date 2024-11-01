@@ -17,6 +17,10 @@ delays_monyr <- x %>%
     year = year(occurred_on)
   ) %>%
   filter(occurred_on >= as.Date("2017-09-01")) %>%  # Filter dates before 2017 - 2018 SY
+  filter(
+    month(occurred_on) == month(Sys.Date()) &
+    year(occurred_on) == year(Sys.Date())
+  ) %>% 
   group_by(year, month) %>%
   summarize(
     count = n(),
