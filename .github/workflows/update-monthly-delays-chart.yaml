@@ -56,11 +56,11 @@ jobs:
         sudo apt-get install -y libxml2-dev libcurl4-openssl-dev libssl-dev
         sudo apt-get install -y default-jdk
         sudo apt-get install pandoc
-        sudo apt-get install -y r-cran-rcpp r-cran-rcpptoml r-cran-dplyr r-cran-readr r-cran-lubridate r-cran-reticulate r-cran-tidyr r-cran-htmlwidgets
+        # sudo apt-get install -y r-cran-rcpp r-cran-rcpptoml r-cran-dplyr r-cran-readr r-cran-lubridate r-cran-reticulate r-cran-tidyr r-cran-htmlwidgets
         R_LIB_PATH=$(Rscript -e 'cat(.libPaths()[1])')
-        echo "R_LIBS_USER=$R_LIB_PATH:/usr/lib/R/site-library:/usr/local/lib/R/site-library" >> $GITHUB_ENV
-        # sudo Rscript -e "install.packages(c('dplyr', 'readr', 'lubridate', 'reticulate', 'tidyr', 'highcharter', 'htmlwidgets', 'pandoc'), lib='$R_LIB_PATH', repos='https://cloud.r-project.org/')"
-        sudo Rscript -e "install.packages(c('highcharter'), lib='$R_LIB_PATH', repos='https://cloud.r-project.org/')"
+        # echo "R_LIBS_USER=$R_LIB_PATH:/usr/lib/R/site-library:/usr/local/lib/R/site-library" >> $GITHUB_ENV
+        sudo Rscript -e "install.packages(c('dplyr', 'readr', 'lubridate', 'arrow', 'tidyr', 'highcharter', 'htmlwidgets', 'pandoc'), lib='$R_LIB_PATH', repos='https://cloud.r-project.org/')"
+        # sudo Rscript -e "install.packages(c('highcharter'), lib='$R_LIB_PATH', repos='https://cloud.r-project.org/')"
 
     - name: Run get_num_monthly_delays R script
       run: |
