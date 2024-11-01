@@ -3,12 +3,10 @@ library(highcharter)
 library(tidyr)
 library(htmlwidgets)
 library(lubridate)
-library(reticulate)
+library(arrow)
 library(pandoc)
 
-
-pd <- import("pandas")
-x <- pd$read_feather("../data/output/filtered_weekends_vacation_covid_delays.feather")
+x <- read_feather("../data/output/filtered_weekends_vacation_covid_delays.feather")
 
 # read in enrollment nums
 
